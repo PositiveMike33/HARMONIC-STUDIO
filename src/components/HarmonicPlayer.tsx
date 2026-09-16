@@ -1,11 +1,13 @@
-import React, { useEffect, useRef } from 'react';
-import { Play, Pause, Zap, Volume2, VolumeX, Sliders } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Play, Pause, Zap, Volume2, VolumeX, Sliders, SkipBack, SkipForward, ListMusic, Trash2, Repeat, X } from 'lucide-react';
 import { useAudioStore } from '../client/store/useAudioStore';
 import { HarmonicFrequency } from '../types';
+import { Spectral432Fingerprint } from './Spectral432Fingerprint';
 
 export const HarmonicPlayer: React.FC = () => {
   const {
     currentTrack,
+    tracks,
     isPlaying,
     currentTime,
     duration,
@@ -13,12 +15,21 @@ export const HarmonicPlayer: React.FC = () => {
     volume,
     measuredLufs,
     peakDbtp,
+    queue,
+    autoPlayNext,
+    playNext,
+    playPrevious,
+    removeFromQueue,
+    clearQueue,
+    toggleAutoPlayNext,
+    playTrack,
     togglePlay,
     seek,
     setFrequency,
     setVolume,
   } = useAudioStore();
 
+  const [isQueueOpen, setIsQueueOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   // Format seconds to M:SS
@@ -225,7 +236,10 @@ export const HarmonicPlayer: React.FC = () => {
       </div>
 
       {/* Playback Controls & Progress */}
-      <div className="space-y-4 pt-1">
+      <div className="space-y-3.5 pt-1">
+        {/* Real-time Spectral Fingerprint 432 Hz Component (Web Audio AnalyserNode) */}
+        <Spectral432Fingerprint />
+
         {/* Time and Progress Bar */}
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-mono text-neutral-400">
@@ -251,14 +265,14 @@ export const HarmonicPlayer: React.FC = () => {
           </div>
         </div>
 
-        {/* Center Giant Play Button & Volume */}
-        <div className="flex items-center justify-between px-2">
+        {/* Transport Controls (Prev, Giant Play, Next) & Quick Toggles */}
+        <div className="flex items-center justify-between px-1">
           {/* Volume Control */}
-          <div className="flex items-center gap-2 text-neutral-400">
+          <div className="flex items-center gap-1.5 text-neutral-400">
             <button
               id="btn-toggle-mute"
               onClick={() => setVolume(volume > 0 ? 0 : 0.85)}
-              className="hover:text-[#00FF9D] transition-colors cursor-pointer"
+              className="hover:text-[#00FF9D] transition-colors cursor-pointer p-1"
               aria-label={volume === 0 ? 'Activer le son' : 'Couper le son'}
             >
               {volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -272,31 +286,176 @@ export const HarmonicPlayer: React.FC = () => {
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
               aria-label="Volume audio"
-              className="w-16 h-1 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-[#00FF9D]"
+              className="w-12 sm:w-16 h-1 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-[#00FF9D]"
             />
           </div>
 
-          {/* Giant 64px Circular Play Button */}
-          <button
-            id="btn-player-giant-play"
-            onClick={togglePlay}
-            aria-label={isPlaying ? 'Mettre en pause' : 'Lancer la lecture'}
-            className="w-16 h-16 rounded-full bg-[#00FF9D] text-black shadow-[0_0_30px_rgba(0,255,157,0.7)] flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer -ml-8"
-          >
-            {isPlaying ? (
-              <Pause className="w-7 h-7 fill-black" />
-            ) : (
-              <Play className="w-7 h-7 fill-black ml-1" />
-            )}
-          </button>
+          {/* Transport Cluster (Previous, Giant Play, Next) */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <button
+              id="btn-player-previous"
+              onClick={playPrevious}
+              aria-label="Morceau précédent"
+              title="Morceau précédent"
+              className="w-9 h-9 rounded-full bg-neutral-800/90 hover:bg-neutral-700 active:scale-95 text-neutral-300 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-neutral-700/60 shadow-sm"
+            >
+              <SkipBack className="w-4 h-4 fill-current" />
+            </button>
 
-          {/* Spacer to balance center alignment */}
-          <div className="w-20 text-right">
-            <span className="text-[10px] font-mono text-neutral-500 uppercase">
-              320k CBR
-            </span>
+            {/* Giant 64px Circular Play Button */}
+            <button
+              id="btn-player-giant-play"
+              onClick={togglePlay}
+              aria-label={isPlaying ? 'Mettre en pause' : 'Lancer la lecture'}
+              className="w-16 h-16 rounded-full bg-[#00FF9D] text-black shadow-[0_0_30px_rgba(0,255,157,0.7)] flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              {isPlaying ? (
+                <Pause className="w-7 h-7 fill-black" />
+              ) : (
+                <Play className="w-7 h-7 fill-black ml-1" />
+              )}
+            </button>
+
+            <button
+              id="btn-player-next"
+              onClick={playNext}
+              aria-label="Morceau suivant"
+              title="Morceau suivant"
+              className="w-9 h-9 rounded-full bg-neutral-800/90 hover:bg-neutral-700 active:scale-95 text-neutral-300 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-neutral-700/60 shadow-sm"
+            >
+              <SkipForward className="w-4 h-4 fill-current" />
+            </button>
+          </div>
+
+          {/* Queue & Auto-play toggles */}
+          <div className="flex items-center gap-1.5">
+            <button
+              id="btn-toggle-autoplay"
+              onClick={toggleAutoPlayNext}
+              aria-label={autoPlayNext ? 'Désactiver la lecture auto' : 'Activer la lecture auto'}
+              title={autoPlayNext ? 'Lecture auto : Activée' : 'Lecture auto : Désactivée'}
+              className={`p-2 rounded-lg border transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono ${
+                autoPlayNext
+                  ? 'border-[#00FF9D]/50 bg-[#00FF9D]/10 text-[#00FF9D]'
+                  : 'border-neutral-800 bg-neutral-900/60 text-neutral-500 hover:text-neutral-300'
+              }`}
+            >
+              <Repeat className={`w-3.5 h-3.5 ${autoPlayNext ? 'text-[#00FF9D]' : 'text-neutral-500'}`} />
+            </button>
+
+            <button
+              id="btn-toggle-queue"
+              onClick={() => setIsQueueOpen(!isQueueOpen)}
+              aria-label="Afficher la file d'attente"
+              title="File d'attente (Playlist)"
+              className={`p-2 rounded-lg border transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono relative ${
+                isQueueOpen || queue.length > 0
+                  ? 'border-[#00FF9D]/50 bg-[#0A1B14] text-[#00FF9D]'
+                  : 'border-neutral-800 bg-neutral-900/60 text-neutral-400 hover:text-white'
+              }`}
+            >
+              <ListMusic className="w-3.5 h-3.5" />
+              {queue.length > 0 && (
+                <span className="bg-[#00FF9D] text-black text-[9px] font-bold px-1.5 py-0.2 rounded-full">
+                  {queue.length}
+                </span>
+              )}
+            </button>
           </div>
         </div>
+
+        {/* Collapsible Playlist Queue Panel */}
+        {isQueueOpen && (
+          <div
+            id="player-queue-drawer"
+            className="bg-[#090F12] border border-neutral-800 rounded-xl p-3 space-y-2 text-xs font-mono animate-fadeIn"
+          >
+            <div className="flex items-center justify-between pb-1.5 border-b border-neutral-800">
+              <div className="flex items-center gap-1.5 text-white font-bold">
+                <ListMusic className="w-3.5 h-3.5 text-[#00FF9D]" />
+                <span>File d'attente ({queue.length})</span>
+              </div>
+              <div className="flex items-center gap-2">
+                {queue.length > 0 && (
+                  <button
+                    onClick={clearQueue}
+                    className="text-[10px] text-neutral-400 hover:text-red-400 transition-colors cursor-pointer flex items-center gap-1"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                    <span>Vider</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsQueueOpen(false)}
+                  className="text-neutral-400 hover:text-white p-0.5 cursor-pointer"
+                  aria-label="Fermer la file"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Auto-play status indicator */}
+            <div className="flex items-center justify-between text-[10px] text-neutral-400 bg-black/40 px-2 py-1 rounded">
+              <span>Lecture auto du suivant :</span>
+              <button
+                onClick={toggleAutoPlayNext}
+                className={`font-bold uppercase cursor-pointer ${
+                  autoPlayNext ? 'text-[#00FF9D]' : 'text-neutral-500'
+                }`}
+              >
+                {autoPlayNext ? 'Activée (Automatique)' : 'Désactivée'}
+              </button>
+            </div>
+
+            {queue.length > 0 ? (
+              <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1 custom-scrollbar">
+                {queue.map((qTrack, idx) => (
+                  <div
+                    key={`${qTrack.id}-${idx}`}
+                    className="flex items-center justify-between p-1.5 rounded bg-neutral-900/80 hover:bg-neutral-800/80 border border-neutral-800/60 group"
+                  >
+                    <div
+                      onClick={() => {
+                        removeFromQueue(idx);
+                        playTrack(qTrack);
+                      }}
+                      className="min-w-0 flex-1 cursor-pointer flex items-center gap-2"
+                    >
+                      <span className="text-neutral-500 text-[10px]">#{idx + 1}</span>
+                      <div className="truncate">
+                        <div className="font-sans font-medium text-white truncate text-xs group-hover:text-[#00FF9D] transition-colors">
+                          {qTrack.title}
+                        </div>
+                        <div className="text-[10px] text-neutral-400">
+                          {qTrack.artist} • {qTrack.durationSeconds}s
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => removeFromQueue(idx)}
+                      className="text-neutral-500 hover:text-red-400 p-1 cursor-pointer transition-colors"
+                      title="Retirer de la file"
+                      aria-label="Retirer de la file"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-[11px] text-neutral-400 text-center py-2 bg-black/20 rounded">
+                <div>La file d'attente est vide.</div>
+                <div className="text-[10px] text-neutral-500 mt-0.5">
+                  Morceau suivant prévu :{' '}
+                  <strong className="text-neutral-300">
+                    {tracks[(tracks.findIndex((t) => t.id === currentTrack.id) + 1) % tracks.length]?.title || 'Aucun'}
+                  </strong>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Technical Footer Specs */}
         <div

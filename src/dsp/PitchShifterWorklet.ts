@@ -33,6 +33,28 @@ export const TRUE_PEAK_CEILING_DBTP = -1.0;
 export const TRUE_PEAK_THRESHOLD_LINEAR = Math.pow(10, TRUE_PEAK_CEILING_DBTP / 20); // 0.8912509381337456
 export const FFT_WINDOW_SIZE = 4096;
 
+export const HARMONIC_CONSTANTS = {
+  PITCH_RATIO_432: RATIO_440_TO_432,
+  PHI_FREQUENCY: PHI_FREQUENCY_HZ,
+  PHI_DEPTH: PHI_MODULATION_DEPTH,
+  SOLFEGGIO_528: CARRIER_528_HZ,
+  BINAURAL_GAIN_DB: -24.0,
+  FFT_SIZE: FFT_WINDOW_SIZE,
+  HOP_SIZE: 1024,
+  CROSSFADE_MS: 35.0,
+  TRUE_PEAK_CEILING_DB: TRUE_PEAK_CEILING_DBTP,
+} as const;
+
+export type AudioProcessingMode = 
+  | '440' 
+  | '432' 
+  | 'phi' 
+  | 'binaural'
+  | '440_BYPASS' 
+  | '432_NATURAL' 
+  | '432_PHI' 
+  | '432_528_BINAURAL';
+
 /**
  * Calcule la table de fenêtrage de Blackman-Harris 4-termes pour N = 4096.
  * Atténuation des lobes secondaires > 92 dB.

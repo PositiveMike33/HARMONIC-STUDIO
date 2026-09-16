@@ -55,6 +55,34 @@ export function calculateStripeConnectSplit(
   };
 }
 
+export interface SplitCalculation {
+  totalAmountCents: number;
+  creatorSplitCents: number;
+  platformFeeCents: number;
+  creatorPercentage: string;
+  platformPercentage: string;
+}
+
+export function calculateSplitCents(priceCad = 0.99): SplitCalculation {
+  const totalAmountCents = Math.round(priceCad * 100);
+  const split = calculateStripeConnectSplit(totalAmountCents, 85);
+  return {
+    totalAmountCents,
+    creatorSplitCents: split.creatorCents,
+    platformFeeCents: split.platformFeeCents,
+    creatorPercentage: split.creatorPercentStr,
+    platformPercentage: split.platformPercentStr,
+  };
+}
+
+export const UNLIMITED_PASS_SPECS = {
+  priceCad: 9.99,
+  priceCents: 999,
+  currency: 'cad',
+  interval: 'month',
+  planName: 'Pass Fréquentiel Illimité 432Hz & Φ',
+} as const;
+
 // ==========================================
 // 2. ÉTAT PERSISTANT ACID & IDEMPOTENCE
 // ==========================================
