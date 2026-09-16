@@ -11,7 +11,6 @@ export const HarmonicPlayer: React.FC = () => {
     duration,
     activeFrequency,
     volume,
-    spectrumData,
     measuredLufs,
     peakDbtp,
     togglePlay,
@@ -30,39 +29,63 @@ export const HarmonicPlayer: React.FC = () => {
     return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
-  // Render Spectrum visualizer to canvas
+  // Render Spectrum visualizer to canvas with local RAF loop (Zero React re-renders)
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const width = canvas.width;
-    const height = canvas.height;
-    ctx.clearRect(0, 0, width, height);
+    let animFrameId: number;
+    const sampleBuffer = new Uint8Array(128);
 
-    const barCount = 48;
-    const barWidth = width / barCount;
+    const render = () => {
+      const { engine } = useAudioStore.getState();
+      const analyser = engine.analyserNode;
 
-    for (let i = 0; i < barCount; i++) {
-      const dataIndex = Math.floor(i * (spectrumData.length / barCount));
-      const val = isPlaying ? (spectrumData[dataIndex] || 0) : 10;
-      const barHeight = Math.max(2, (val / 255) * height);
-
-      // Gradient color based on frequency profile
-      if (activeFrequency === 'phi') {
-        ctx.fillStyle = i % 2 === 0 ? '#F59E0B' : '#00FF9D';
-      } else if (activeFrequency === 'binaural') {
-        ctx.fillStyle = i % 2 === 0 ? '#8B5CF6' : '#00FF9D';
-      } else if (activeFrequency === '432') {
-        ctx.fillStyle = '#00FF9D';
-      } else {
-        ctx.fillStyle = '#64748b';
+      if (analyser && isPlaying) {
+        analyser.getByteFrequencyData(sampleBuffer);
       }
 
-      ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1.5, barHeight);
-    }
-  }, [spectrumData, isPlaying, activeFrequency]);
+      const width = canvas.width;
+      const height = canvas.height;
+      ctx.clearRect(0, 0, width, height);
+
+      const barCount = 48;
+      const barWidth = width / barCount;
+
+      for (let i = 0; i < barCount; i++) {
+        const dataIndex = Math.floor(i * (sampleBuffer.length / barCount));
+        const val = isPlaying ? (sampleBuffer[dataIndex] || 8) : 6;
+        const barHeight = Math.max(2, (val / 255) * height);
+
+        // Palette visuelle stricte avec contraste > 9:1 (#00FF9D / #F59E0B)
+        if (activeFrequency === 'phi') {
+          ctx.fillStyle = i % 2 === 0 ? '#F59E0B' : '#00FF9D';
+        } else if (activeFrequency === 'binaural') {
+          ctx.fillStyle = i % 2 === 0 ? '#8B5CF6' : '#00FF9D';
+        } else if (activeFrequency === '432') {
+          ctx.fillStyle = '#00FF9D';
+        } else {
+          ctx.fillStyle = '#64748b';
+        }
+
+        ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1.5, barHeight);
+      }
+
+      if (isPlaying) {
+        animFrameId = requestAnimationFrame(render);
+      }
+    };
+
+    render();
+
+    return () => {
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+      }
+    };
+  }, [isPlaying, activeFrequency]);
 
   const frequencyOptions: Array<{
     id: HarmonicFrequency;

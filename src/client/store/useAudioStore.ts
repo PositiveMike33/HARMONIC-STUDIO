@@ -44,7 +44,7 @@ export const INITIAL_TRACKS: Track[] = [
     title: 'Counting Stars',
     artist: 'OneRepublic',
     durationSeconds: 257,
-    pitchShiftCents: -31.76,
+    pitchShiftCents: -31.7667,
     lufs: -14.0,
     truePeakDbtp: -1.0,
     bitrateKbps: 320,
@@ -56,6 +56,24 @@ export const INITIAL_TRACKS: Track[] = [
     coverGradientTo: '#6D28D9',
     audioUrl: '/api/stream/counting-stars',
     spectralFingerprint: 'SHA256:432ac918...1618',
+  },
+  {
+    id: 'the-soldier-4-mike-solo',
+    title: 'The Soldier 4 - Mike Solo/WAK/STB/RTN/LFY (Studio Version) Linkin Park',
+    artist: 'The Soldier',
+    durationSeconds: 316,
+    pitchShiftCents: -31.7667,
+    lufs: -14.0,
+    truePeakDbtp: -1.0,
+    bitrateKbps: 320,
+    priceCad: 0.99,
+    unlocked: true,
+    creatorStripeId: 'acct_1LinkinRemixStudio',
+    originalTuningHz: 440.0,
+    coverGradientFrom: '#EF4444',
+    coverGradientTo: '#B91C1C',
+    audioUrl: '/api/stream/the-soldier-4-mike-solo',
+    spectralFingerprint: 'SHA256:7967faf9...fec0',
   },
 ];
 
@@ -361,37 +379,9 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
         }
       });
 
-      // Start RAF loop for real-time spectrum analysis
-      const buffer = new Uint8Array(analyser.frequencyBinCount);
-      const updateMeters = () => {
-        if (get().isPlaying && analyser) {
-          analyser.getByteFrequencyData(buffer);
-          // Sample 64 points for visualization
-          const samples = new Uint8Array(64);
-          for (let i = 0; i < 64; i++) {
-            samples[i] = buffer[Math.floor(i * (buffer.length / 64))];
-          }
-          
-          // Calculate approximate RMS and LUFS
-          let sum = 0;
-          for (let i = 0; i < buffer.length; i++) {
-            const normalized = buffer[i] / 255;
-            sum += normalized * normalized;
-          }
-          const rms = Math.sqrt(sum / buffer.length);
-          const db = rms > 0.0001 ? 20 * Math.log10(rms) : -70;
-          const estimatedLufs = Math.max(-24, Math.min(-12, -14.0 + (db + 20) * 0.15));
-
-          set({
-            spectrumData: samples,
-            measuredLufs: Number(estimatedLufs.toFixed(1)),
-            peakDbtp: Number(Math.min(-1.0, -1.0 + (rms * 0.4)).toFixed(1)),
-          });
-        }
-        requestAnimationFrame(updateMeters);
-      };
-      requestAnimationFrame(updateMeters);
-
+      // Frame-rate decoupling: AnalyserNode is accessible on engine.analyserNode.
+      // High-frequency telemetry (60 FPS) is read directly by Canvas 2D contexts,
+      // preventing JavaScript engine choking from React re-renders.
     } catch (err) {
       console.error('Failed to initialize AudioContext:', err);
     }
@@ -473,11 +463,19 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       engine.workletNode.port.postMessage({ type: 'SET_MODE', mode });
     }
 
-    // 35ms Constant-power cross-fade across the 4 GainNodes
+    // 35ms Constant-power cross-fade across the 4 GainNodes (g1^2 + g2^2 = 1.0)
     if (engine.audioContext && engine.gainNodes) {
       const ctx = engine.audioContext;
       const now = ctx.currentTime;
       const crossfadeDuration = 0.035; // 35 milliseconds
+      const steps = 16;
+      const fadeInCurve = new Float32Array(steps);
+      const fadeOutCurve = new Float32Array(steps);
+      for (let i = 0; i < steps; i++) {
+        const angle = (Math.PI / 2) * (i / (steps - 1));
+        fadeInCurve[i] = Math.sin(angle);
+        fadeOutCurve[i] = Math.cos(angle);
+      }
 
       const modes: HarmonicFrequency[] = ['440', '432', 'phi', 'binaural'];
       modes.forEach((m) => {
@@ -485,8 +483,12 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
         if (gainNode) {
           gainNode.gain.cancelScheduledValues(now);
           gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-          const target = m === mode ? 1.0 : 0.0;
-          gainNode.gain.linearRampToValueAtTime(target, now + crossfadeDuration);
+          const curve = m === mode ? fadeInCurve : fadeOutCurve;
+          try {
+            gainNode.gain.setValueCurveAtTime(curve, now, crossfadeDuration);
+          } catch {
+            gainNode.gain.linearRampToValueAtTime(m === mode ? 1.0 : 0.0, now + crossfadeDuration);
+          }
         }
       });
     }
