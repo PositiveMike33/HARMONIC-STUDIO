@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Pause, RefreshCw, Lock, Sparkles, Music } from 'lucide-react';
+import { Play, Pause, RefreshCw, Lock, Sparkles, Music, ListPlus, Check } from 'lucide-react';
 import { useAudioStore } from '../client/store/useAudioStore';
 import { Track } from '../types';
 
@@ -16,9 +16,12 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
     togglePlay,
     adminUnlocked,
     isSubscribed,
+    addToQueue,
+    queue,
   } = useAudioStore();
 
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [queuedNotification, setQueuedNotification] = useState<string | null>(null);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -136,6 +139,31 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                     Master 320 kbps
                   </div>
                 </div>
+
+                {/* Add to Queue Button */}
+                <button
+                  id={`btn-queue-${track.id}`}
+                  onClick={() => {
+                    addToQueue(track);
+                    setQueuedNotification(track.id);
+                    setTimeout(() => setQueuedNotification(null), 1500);
+                  }}
+                  title="Ajouter à la file d'attente"
+                  aria-label={`Ajouter ${track.title} à la file d'attente`}
+                  className="bg-neutral-800/90 hover:bg-neutral-700 active:scale-95 text-neutral-300 hover:text-[#00FF9D] p-2 rounded-lg border border-neutral-700/80 transition-all cursor-pointer flex items-center gap-1 text-xs font-mono"
+                >
+                  {queuedNotification === track.id ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-[#00FF9D]" />
+                      <span className="text-[11px] text-[#00FF9D] hidden md:inline">Ajouté</span>
+                    </>
+                  ) : (
+                    <>
+                      <ListPlus className="w-3.5 h-3.5" />
+                      <span className="text-[11px] hidden md:inline">+ File</span>
+                    </>
+                  )}
+                </button>
 
                 <button
                   id={`btn-listen-${track.id}`}

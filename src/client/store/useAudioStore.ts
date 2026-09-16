@@ -99,6 +99,16 @@ interface AudioStore {
   measuredLufs: number;
   peakDbtp: number;
   
+  // Playlist & Queue Management
+  queue: Track[];
+  autoPlayNext: boolean;
+  addToQueue: (track: Track) => void;
+  removeFromQueue: (index: number) => void;
+  clearQueue: () => void;
+  playNext: () => Promise<void>;
+  playPrevious: () => Promise<void>;
+  toggleAutoPlayNext: () => void;
+
   // ACP & Colibri Status
   colibriAnalysis: ColibriAnalysisResult | null;
   acpEvents: AcpSessionEvent[];
@@ -133,6 +143,10 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
   volume: 0.85,
   adminUnlocked: true,
   isSubscribed: false,
+
+  // Playlist & Queue
+  queue: [],
+  autoPlayNext: true,
 
   engine: {
     audioContext: null,
@@ -332,11 +346,13 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       });
 
       audio.addEventListener('ended', () => {
-        // Auto play next track in playlist
-        const { tracks, currentTrack, playTrack } = get();
-        const currentIndex = tracks.findIndex(t => t.id === currentTrack.id);
-        const nextTrack = tracks[(currentIndex + 1) % tracks.length];
-        playTrack(nextTrack);
+        // Auto play next track in queue/playlist
+        const { autoPlayNext, playNext } = get();
+        if (autoPlayNext) {
+          playNext();
+        } else {
+          set({ isPlaying: false });
+        }
       });
 
       set({
@@ -558,5 +574,44 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       tracks: [track, ...state.tracks],
       currentTrack: track,
     }));
+  },
+
+  // Playlist & Queue Actions
+  addToQueue: (track: Track) => {
+    set((state) => ({ queue: [...state.queue, track] }));
+  },
+
+  removeFromQueue: (index: number) => {
+    set((state) => ({ queue: state.queue.filter((_, i) => i !== index) }));
+  },
+
+  clearQueue: () => {
+    set({ queue: [] });
+  },
+
+  toggleAutoPlayNext: () => {
+    set((state) => ({ autoPlayNext: !state.autoPlayNext }));
+  },
+
+  playNext: async () => {
+    const { queue, tracks, currentTrack, playTrack } = get();
+    if (queue.length > 0) {
+      const nextTrack = queue[0];
+      set({ queue: queue.slice(1) });
+      await playTrack(nextTrack);
+    } else {
+      const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
+      const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % tracks.length : 0;
+      const nextTrack = tracks[nextIndex];
+      await playTrack(nextTrack);
+    }
+  },
+
+  playPrevious: async () => {
+    const { tracks, currentTrack, playTrack } = get();
+    const currentIndex = tracks.findIndex((t) => t.id === currentTrack.id);
+    const prevIndex = currentIndex >= 0 ? (currentIndex - 1 + tracks.length) % tracks.length : 0;
+    const prevTrack = tracks[prevIndex];
+    await playTrack(prevTrack);
   },
 }));

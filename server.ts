@@ -208,6 +208,8 @@ app.get('/api/stream/:trackId', (req, res) => {
     'Cache-Control': 'no-cache',
     'X-Audio-Bitrate': '320kbps-cbr-equivalent',
     'X-DSP-Tuning': '432Hz-Verdi-Phi-Ready',
+    'X-Colibri-BasePitch': String(track.originalTuningHz),
+    'X-Colibri-Action': track.originalTuningHz === 432.0 ? 'BYPASS_SHIFT' : 'APPLY_SHIFT',
   });
 
   const buffer = Buffer.alloc(chunkLength);
@@ -337,9 +339,14 @@ app.post('/api/stripe/checkout-single', (req, res) => {
   const { trackId, userId = 'user_listener_default' } = req.body || {};
   const track = TRACKS_DB.find((t) => t.id === trackId) || TRACKS_DB[0];
 
-  const totalAmount = track.priceCad; // 0.99 $ CAD
-  const platformFee = Math.round(totalAmount * 0.15 * 100) / 100; // 0.15 $ CAD
-  const creatorPayout = Math.round((totalAmount - platformFee) * 100) / 100; // 0.84 $ CAD
+  // AoT Invariant: Exact integer-cents arithmetic (99 cents -> 84 cents creator, 15 cents platform)
+  const totalAmountCents = Math.round(track.priceCad * 100);
+  const creatorPayoutCents = Math.floor(totalAmountCents * 0.85); // 84 cents
+  const platformFeeCents = totalAmountCents - creatorPayoutCents; // 15 cents
+
+  const totalAmount = totalAmountCents / 100;
+  const creatorPayout = creatorPayoutCents / 100;
+  const platformFee = platformFeeCents / 100;
 
   const purchase: PurchaseRecord = {
     id: 'pur_' + crypto.randomBytes(8).toString('hex'),
@@ -358,13 +365,16 @@ app.post('/api/stripe/checkout-single', (req, res) => {
     success: true,
     transaction: purchase,
     split: {
+      totalCents: totalAmountCents,
+      creatorSplitCents: creatorPayoutCents,
+      platformFeeCents: platformFeeCents,
       creatorPercentage: '85%',
       platformPercentage: '15%',
       creatorAmount: `${creatorPayout.toFixed(2)} $ CAD`,
       platformFee: `${platformFee.toFixed(2)} $ CAD`,
       creatorConnectedAccount: track.creatorStripeId,
     },
-    message: `Piste "${track.title}" débloquée avec succès via Stripe Connect!`,
+    message: `Piste "${track.title}" débloquée avec succès via Stripe Connect (85/15 cents intègres)!`,
   });
 });
 

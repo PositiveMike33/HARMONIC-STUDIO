@@ -1,61 +1,63 @@
 /**
- * Database schema specification for Harmonic Studio 432Hz
- * Supports PostgreSQL with Drizzle ORM paradigms.
+ * HARMONIC STUDIO - PostgreSQL Schema via Drizzle ORM Specification
+ * Comprehensive modeling of Users, Creators, Tracks, Purchases, Subscriptions, and Idempotent Webhook Events.
  */
 
-export interface DbUser {
+export interface DbUserRecord {
   id: string;
   email: string;
-  role: 'admin' | 'creator' | 'listener';
-  stripeCustomerId?: string;
-  stripeConnectedAccountId?: string;
+  role: 'LISTENER' | 'CREATOR' | 'ADMIN_CREATOR';
   createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface DbTrack {
+export interface DbArtistRecord {
   id: string;
-  title: string;
-  artist: string;
-  artistId: string;
-  durationSeconds: number;
-  pitchShiftCents: number;
-  integratedLufs: number;
-  truePeakDbtp: number;
-  bitrateKbps: number;
-  priceCad: number;
-  audioPath: string;
-  spectralFingerprint: string;
-  detectedTuningHz: number;
+  userId: string;
+  artistName: string;
+  stripeAccountId: string;
+  stripeAccountReady: boolean;
+  payoutPercentage: number; // 85% default
+  bio?: string;
   createdAt: Date;
 }
 
-export interface DbPurchase {
+export interface DbTrackRecord {
+  id: string;
+  artistId: string;
+  title: string;
+  durationSeconds: number;
+  originalPitchHz: number;
+  isCertified432: boolean;
+  masterFileKey: string;
+  priceCentsCad: number; // 99 default for 0.99 CAD
+  lufsTarget: number; // -14.0 LUFS
+  truePeakDbtpLimit: number; // -1.0 dBTP
+  createdAt: Date;
+}
+
+export interface DbPurchaseRecord {
   id: string;
   userId: string;
   trackId: string;
-  amountCad: number;
-  creatorPayoutCad: number;
-  platformFeeCad: number;
   stripePaymentIntentId: string;
+  amountCentsCad: number;
+  creatorSplitCentsCad: number; // 84 cents
+  platformFeeCentsCad: number; // 15 cents
   createdAt: Date;
 }
 
-export interface DbSubscription {
+export interface DbSubscriptionRecord {
   id: string;
   userId: string;
-  planId: 'pass_frequentiel_unlimited';
-  status: 'active' | 'canceled' | 'past_due';
   stripeSubscriptionId: string;
+  status: 'TRIALING' | 'ACTIVE' | 'PAST_DUE' | 'CANCELED';
   currentPeriodEnd: Date;
   createdAt: Date;
 }
 
-export interface DbAcpJob {
-  id: string;
-  sessionId: string;
-  sourceUrl?: string;
-  status: 'pending' | 'processing' | 'completed' | 'cancelled' | 'failed';
-  progressPercent: number;
-  metadata?: Record<string, unknown>;
-  createdAt: Date;
+export interface DbStripeProcessedEvent {
+  eventId: string;
+  eventType: string;
+  processedAt: Date;
 }
