@@ -80,7 +80,7 @@ export const StripeCheckoutModal: React.FC<StripeCheckoutModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-white font-mono">
-                {isSubscription ? 'Stripe Billing • Pass Illimité' : 'Stripe Connect • Achat Unitaire'}
+                {isSubscription ? 'Stripe Billing • Pass Illimité' : 'Stripe Connect • Coffret 4 Remasters'}
               </h2>
               <p className="text-xs text-neutral-400 font-sans">
                 Passerelle de paiement sécurisée SSL 256 bits
@@ -103,7 +103,7 @@ export const StripeCheckoutModal: React.FC<StripeCheckoutModalProps> = ({
             <p className="text-xs text-neutral-400">
               {isSubscription
                 ? 'Votre Pass Fréquentiel Illimité est désormais actif sur tout le catalogue.'
-                : `La piste "${track?.title}" est débloquée avec succès.`}
+                : `Le coffret des 4 versions master de "${track?.title}" (440Hz, 432Hz, Φ, 528Hz) est débloqué avec succès.`}
             </p>
           </div>
         ) : (
@@ -114,7 +114,7 @@ export const StripeCheckoutModal: React.FC<StripeCheckoutModalProps> = ({
                 <span className="text-neutral-300 font-medium">
                   {isSubscription
                     ? 'Pass Fréquentiel Illimité (Mensuel)'
-                    : `Licence Streaming : ${track?.title}`}
+                    : `Coffret 4 Remasters : ${track?.title}`}
                 </span>
                 <span className="font-bold text-[#00FF9D] font-mono">
                   {amount.toFixed(2)} $ CAD

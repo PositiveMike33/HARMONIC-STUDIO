@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, DollarSign, Upload, Cpu, Radio, CheckCircle, ArrowUpRight, Play, Terminal } from 'lucide-react';
+import { X, DollarSign, Upload, Cpu, Radio, CheckCircle, ArrowUpRight, Play, Terminal, Info } from 'lucide-react';
 import { useAudioStore } from '../client/store/useAudioStore';
 
 interface CreatorStudioModalProps {
@@ -258,9 +258,11 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
             </div>
 
             <button
+              id="creator-submit-button"
               type="submit"
               disabled={isProcessing}
-              className="w-full bg-[#00FF9D] hover:bg-[#00e68d] text-black font-bold text-xs py-2 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,255,157,0.3)] disabled:opacity-50"
+              title="Lance la conversion 432 Hz, la normalisation sonore EBU R128 et met en ligne votre morceau"
+              className="w-full bg-[#00FF9D] hover:bg-[#00e68d] text-black font-bold text-xs py-2.5 px-4 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,255,157,0.3)] disabled:opacity-50"
             >
               <Upload className="w-3.5 h-3.5" />
               <span>
@@ -269,6 +271,34 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
                   : 'Ingérer via Goose ACP & Publier (0.99 $ CAD)'}
               </span>
             </button>
+
+            {/* Fiche descriptive claire et directe du bouton */}
+            <div id="creator-submit-guide" className="bg-black/50 border border-neutral-800 rounded-lg p-3 text-xs space-y-2">
+              <div className="flex items-center gap-1.5 text-[#00FF9D] font-mono font-semibold text-[11px]">
+                <Info className="w-3.5 h-3.5 text-[#00FF9D]" />
+                <span>RÔLE & MODE D'EMPLOI DE CE BOUTON :</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-neutral-300 font-sans">
+                <div className="bg-[#090F12] p-2.5 rounded border border-neutral-800/80 space-y-1">
+                  <div className="text-white font-medium flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D]"></span>
+                    <span>Que fait ce bouton ?</span>
+                  </div>
+                  <p className="text-neutral-400 text-[11px] leading-relaxed">
+                    Il prend votre morceau, le réaccorde au diapason naturel <strong className="text-[#00FF9D]">432 Hz</strong> (ratio exact 54/55), calibre le volume à la norme broadcast <strong className="text-white">EBU R128 (-14 LUFS)</strong> et le met instantanément en vente sur la plateforme.
+                  </p>
+                </div>
+                <div className="bg-[#090F12] p-2.5 rounded border border-neutral-800/80 space-y-1">
+                  <div className="text-white font-medium flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    <span>Quand l'utiliser ?</span>
+                  </div>
+                  <p className="text-neutral-400 text-[11px] leading-relaxed">
+                    Cliquez dès que le titre, l'artiste et le diapason source sont complétés. Vous commencez immédiatement à recevoir <strong className="text-amber-400">85 % de chaque achat (0.84 $ CAD)</strong> sur votre compte Stripe avec libération à J+7.
+                  </p>
+                </div>
+              </div>
+            </div>
           </form>
 
           {/* Goose ACP Protocol Log Stream */}

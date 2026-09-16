@@ -14,6 +14,18 @@ export interface HarmonicProfile {
   color: string;
 }
 
+export interface MasterArchiveItem {
+  id: HarmonicFrequency;
+  title: string;
+  tuning: string;
+  duration: string;
+  bitrate: string;
+  fingerprint: string;
+  isCustomUploaded?: boolean;
+  customAudioUrl?: string;
+  fileName?: string;
+}
+
 export interface Track {
   id: string;
   title: string;
@@ -31,6 +43,7 @@ export interface Track {
   coverGradientTo?: string;
   audioUrl: string;
   spectralFingerprint?: string;
+  masterArchives?: MasterArchiveItem[];
 }
 
 export interface UserSession {

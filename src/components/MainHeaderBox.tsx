@@ -51,8 +51,8 @@ export const MainHeaderBox: React.FC = () => {
               Harmonic Studio & Plateforme de Streaming 432Hz
             </h1>
           </div>
-          <p className="text-neutral-400 text-xs md:text-sm leading-relaxed font-sans">
-            Distribution acoustique certifiée EBU R128 (-14 LUFS / True Peak -1.0 dBTP), protection anti-téléchargement HTTP 206 et monétisation Stripe Connect (85 % créateur / 15 % plateforme).
+          <p id="header-platform-description" className="text-neutral-300 text-xs md:text-sm leading-relaxed font-sans">
+            Écoutez vos morceaux préférés réaccordés en <span className="text-[#00FF9D] font-medium">432 Hz</span> en direct avec une qualité sonore optimale, et soutenez directement les artistes avec <span className="text-white font-medium">85 % des revenus</span> reversés sans intermédiaire.
           </p>
         </div>
 

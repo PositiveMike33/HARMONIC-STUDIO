@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, Zap, Volume2, VolumeX, Sliders, SkipBack, SkipForward, ListMusic, Trash2, Repeat, X } from 'lucide-react';
+import { Play, Pause, Zap, Volume2, VolumeX, Sliders, SkipBack, SkipForward, ListMusic, Trash2, Repeat, X, ShieldCheck, CheckCircle, Upload } from 'lucide-react';
 import { useAudioStore } from '../client/store/useAudioStore';
 import { HarmonicFrequency } from '../types';
 import { Spectral432Fingerprint } from './Spectral432Fingerprint';
@@ -27,10 +27,80 @@ export const HarmonicPlayer: React.FC = () => {
     seek,
     setFrequency,
     setVolume,
+    masterSongUrl,
+    setMasterSongUrl,
+    customPhiAudioUrl,
+    setCustomPhiAudioUrl,
+    custom440AudioUrl,
+    setCustom440AudioUrl,
+    custom432AudioUrl,
+    setCustom432AudioUrl,
+    customBinauralAudioUrl,
+    setCustomBinauralAudioUrl,
   } = useAudioStore();
 
   const [isQueueOpen, setIsQueueOpen] = useState(false);
+  const [isDraggingOverPhi, setIsDraggingOverPhi] = useState(false);
+  const [isDraggingOver440, setIsDraggingOver440] = useState(false);
+  const [isDraggingOver432, setIsDraggingOver432] = useState(false);
+  const [isDraggingOverBinaural, setIsDraggingOverBinaural] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const phiFileInputRef = useRef<HTMLInputElement | null>(null);
+  const file440InputRef = useRef<HTMLInputElement | null>(null);
+  const file432InputRef = useRef<HTMLInputElement | null>(null);
+  const fileBinauralInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handlePhiFile = (file: File) => {
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setCustomPhiAudioUrl(objectUrl, 212);
+    setMasterSongUrl(objectUrl, 212);
+    if (activeFrequency !== 'phi') {
+      setFrequency('phi');
+    }
+    if (!isPlaying) {
+      togglePlay();
+    }
+  };
+
+  const handle440File = (file: File) => {
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setCustom440AudioUrl(objectUrl, 212);
+    setMasterSongUrl(objectUrl, 212);
+    if (activeFrequency !== '440') {
+      setFrequency('440');
+    }
+    if (!isPlaying) {
+      togglePlay();
+    }
+  };
+
+  const handle432File = (file: File) => {
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setCustom432AudioUrl(objectUrl, 216);
+    setMasterSongUrl(objectUrl, 216);
+    if (activeFrequency !== '432') {
+      setFrequency('432');
+    }
+    if (!isPlaying) {
+      togglePlay();
+    }
+  };
+
+  const handleBinauralFile = (file: File) => {
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setCustomBinauralAudioUrl(objectUrl, 212);
+    setMasterSongUrl(objectUrl, 212);
+    if (activeFrequency !== 'binaural') {
+      setFrequency('binaural');
+    }
+    if (!isPlaying) {
+      togglePlay();
+    }
+  };
 
   // Format seconds to M:SS
   const formatTime = (seconds: number) => {
@@ -108,28 +178,28 @@ export const HarmonicPlayer: React.FC = () => {
     {
       id: '440',
       title: '440 Hz Standard',
-      subtitle: "Son d'origine (Tension)",
+      subtitle: "Son d'origine • MP3 Intégré (03:32)",
       icon: '🎛️',
       accentColor: 'neutral',
     },
     {
       id: '432',
       title: '432 Hz Naturel',
-      subtitle: 'Diapason Verdi (Relaxation)',
+      subtitle: "Diapason Verdi • MP3 Intégré (03:36)",
       icon: '🌿',
       accentColor: 'emerald',
     },
     {
       id: 'phi',
       title: 'Φ 432 Hz Nombre d\'Or',
-      subtitle: 'Onde Φ 1.618 Hz (Clarté)',
+      subtitle: 'Onde Φ 1.618 Hz • MP3 Intégré (03:32)',
       icon: '✨',
       accentColor: 'amber',
     },
     {
       id: 'binaural',
       title: '432Hz + 528Hz Binaural',
-      subtitle: 'Solfège Sacré & Miracle ADN',
+      subtitle: 'Solfège Sacré & Miracle ADN • MP3 Intégré (03:32)',
       icon: '🧬',
       accentColor: 'purple',
     },
@@ -185,6 +255,17 @@ export const HarmonicPlayer: React.FC = () => {
           {frequencyOptions.map((opt) => {
             const isSelected = activeFrequency === opt.id;
             const isPhi = opt.id === 'phi';
+            const is440 = opt.id === '440';
+            const is432 = opt.id === '432';
+            const isBinaural = opt.id === 'binaural';
+
+            const handleFreqClick = () => {
+              // Assure que le morceau se lance immédiatement au clic sur la case si le lecteur est en pause
+              if (!isPlaying) {
+                togglePlay();
+              }
+              setFrequency(opt.id);
+            };
 
             return (
               <button
@@ -192,24 +273,293 @@ export const HarmonicPlayer: React.FC = () => {
                 id={`btn-freq-${opt.id}`}
                 role="radio"
                 aria-checked={isSelected}
-                onClick={() => setFrequency(opt.id)}
-                className={`p-2.5 md:p-3 rounded-xl text-left transition-all duration-150 cursor-pointer flex flex-col justify-between border ${
+                onClick={handleFreqClick}
+                onDragOver={
+                  isPhi
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverPhi(true);
+                      }
+                    : is440
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOver440(true);
+                      }
+                    : is432
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOver432(true);
+                      }
+                    : isBinaural
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverBinaural(true);
+                      }
+                    : undefined
+                }
+                onDragLeave={
+                  isPhi
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverPhi(false);
+                      }
+                    : is440
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOver440(false);
+                      }
+                    : is432
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOver432(false);
+                      }
+                    : isBinaural
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverBinaural(false);
+                      }
+                    : undefined
+                }
+                onDrop={
+                  isPhi
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverPhi(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handlePhiFile(file);
+                      }
+                    : is440
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOver440(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handle440File(file);
+                      }
+                    : is432
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOver432(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handle432File(file);
+                      }
+                    : isBinaural
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverBinaural(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handleBinauralFile(file);
+                      }
+                    : undefined
+                }
+                title={
+                  isPhi
+                    ? "Master Φ 432 Hz : MP3 intégré avec ratio du Nombre d'Or (03:32). Glissez-déposez ou cliquez pour remplacer le MP3."
+                    : is440
+                    ? "Master 440 Hz Standard : MP3 intégré (03:32). Glissez-déposez ou cliquez pour remplacer le MP3."
+                    : is432
+                    ? "Master 432 Hz Naturel : MP3 intégré (03:36). Glissez-déposez ou cliquez pour remplacer le MP3."
+                    : isBinaural
+                    ? "Master 432Hz + 528Hz Binaural : MP3 intégré avec réparation ADN 528 Hz (03:32). Glissez-déposez ou cliquez pour remplacer le MP3."
+                    : undefined
+                }
+                className={`p-2.5 md:p-3 rounded-xl text-left transition-all duration-150 cursor-pointer flex flex-col justify-between border relative ${
                   isSelected
                     ? isPhi
-                      ? 'border-[#F59E0B] bg-[#221605] shadow-[0_0_15px_rgba(245,158,11,0.25)] text-amber-200'
+                      ? 'border-[#F59E0B] bg-[#221605] shadow-[0_0_18px_rgba(245,158,11,0.35)] text-amber-200 ring-1 ring-[#F59E0B]/40'
+                      : is440
+                      ? 'border-neutral-400 bg-neutral-900 shadow-[0_0_18px_rgba(255,255,255,0.18)] text-white ring-1 ring-neutral-400/40'
+                      : isBinaural
+                      ? 'border-purple-500 bg-[#1A0B2E] shadow-[0_0_18px_rgba(168,85,247,0.3)] text-purple-200 ring-1 ring-purple-500/40'
                       : 'border-[#00FF9D] bg-[#0A1B14] shadow-[0_0_15px_rgba(0,255,157,0.25)] text-[#00FF9D]'
+                    : isPhi && isDraggingOverPhi
+                    ? 'border-amber-400 bg-amber-950/40 text-amber-200 scale-[1.01]'
+                    : is440 && isDraggingOver440
+                    ? 'border-neutral-400 bg-neutral-800/80 text-white scale-[1.01]'
+                    : is432 && isDraggingOver432
+                    ? 'border-emerald-400 bg-emerald-950/40 text-emerald-200 scale-[1.01]'
+                    : isBinaural && isDraggingOverBinaural
+                    ? 'border-purple-400 bg-purple-950/40 text-purple-200 scale-[1.01]'
+                    : isBinaural
+                    ? 'border-neutral-800 bg-[#121A1E]/80 hover:bg-[#1C1226] text-neutral-300 hover:text-white'
                     : 'border-neutral-800 bg-[#121A1E]/80 hover:bg-[#162228] text-neutral-300 hover:text-white'
                 }`}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-sm">{opt.icon}</span>
-                  <span className="text-xs md:text-sm font-bold font-mono tracking-tight">
-                    {opt.title}
-                  </span>
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">{opt.icon}</span>
+                    <span className="text-xs md:text-sm font-bold font-mono tracking-tight">
+                      {opt.title}
+                    </span>
+                  </div>
+                  {isPhi && (
+                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">
+                      03:32
+                    </span>
+                  )}
+                  {is440 && (
+                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-300 border border-neutral-600/50 shrink-0">
+                      03:32
+                    </span>
+                  )}
+                  {is432 && (
+                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0">
+                      03:36
+                    </span>
+                  )}
+                  {isBinaural && (
+                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 shrink-0">
+                      03:32
+                    </span>
+                  )}
                 </div>
+
                 <div className="text-[11px] text-neutral-400 font-sans mt-1 pl-6">
                   {opt.subtitle}
                 </div>
+
+                {isPhi && (
+                  <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-amber-950/80 border-amber-500/50 text-amber-300">
+                      <CheckCircle className="w-3 h-3 text-[#F59E0B] shrink-0" />
+                      <span>MP3 Intégré (03:32)</span>
+                    </span>
+
+                    <label
+                      htmlFor="phi-file-input"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 hover:text-amber-300 border border-neutral-700/60 cursor-pointer transition-colors"
+                      title="Glisser ou choisir un autre MP3 pour cette case"
+                    >
+                      <Upload className="w-2.5 h-2.5" />
+                      <span>{customPhiAudioUrl ? 'Remplacé' : 'Glisser / Remplacer'}</span>
+                    </label>
+                    <input
+                      id="phi-file-input"
+                      ref={phiFileInputRef}
+                      type="file"
+                      accept="audio/mp3,audio/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handlePhiFile(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+
+                {is440 && (
+                  <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-neutral-900/90 border-neutral-600/60 text-neutral-200">
+                      <CheckCircle className="w-3 h-3 text-[#00FF9D] shrink-0" />
+                      <span>MP3 Intégré (03:32)</span>
+                    </span>
+
+                    <label
+                      htmlFor="freq-440-file-input"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 hover:text-white border border-neutral-700/60 cursor-pointer transition-colors"
+                      title="Glisser ou choisir un autre MP3 pour cette case 440 Hz"
+                    >
+                      <Upload className="w-2.5 h-2.5" />
+                      <span>{custom440AudioUrl ? 'Remplacé' : 'Glisser / Remplacer'}</span>
+                    </label>
+                    <input
+                      id="freq-440-file-input"
+                      ref={file440InputRef}
+                      type="file"
+                      accept="audio/mp3,audio/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handle440File(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+
+                {is432 && (
+                  <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-emerald-950/80 border-emerald-500/50 text-emerald-300">
+                      <CheckCircle className="w-3 h-3 text-[#00FF9D] shrink-0" />
+                      <span>MP3 Intégré (03:36)</span>
+                    </span>
+
+                    <label
+                      htmlFor="freq-432-file-input"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 hover:text-emerald-300 border border-neutral-700/60 cursor-pointer transition-colors"
+                      title="Glisser ou choisir un autre MP3 pour cette case 432 Hz"
+                    >
+                      <Upload className="w-2.5 h-2.5" />
+                      <span>{custom432AudioUrl ? 'Remplacé' : 'Glisser / Remplacer'}</span>
+                    </label>
+                    <input
+                      id="freq-432-file-input"
+                      ref={file432InputRef}
+                      type="file"
+                      accept="audio/mp3,audio/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handle432File(e.target.files[0]);
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+
+                {isBinaural && (
+                  <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-purple-950/80 border-purple-500/50 text-purple-300">
+                      <CheckCircle className="w-3 h-3 text-[#00FF9D] shrink-0" />
+                      <span>MP3 Intégré (03:32)</span>
+                    </span>
+
+                    <label
+                      htmlFor="freq-binaural-file-input"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 hover:text-purple-300 border border-neutral-700/60 cursor-pointer transition-colors"
+                      title="Glisser ou choisir un autre MP3 pour cette case Binaural"
+                    >
+                      <Upload className="w-2.5 h-2.5" />
+                      <span>{customBinauralAudioUrl ? 'Remplacé' : 'Glisser / Remplacer'}</span>
+                    </label>
+                    <input
+                      id="freq-binaural-file-input"
+                      ref={fileBinauralInputRef}
+                      type="file"
+                      accept="audio/mp3,audio/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handleBinauralFile(e.target.files[0]);
+                        }
+                      }}
+                    />
+
+                    <span
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-purple-950/60 border-purple-500/40 text-purple-300"
+                      title="Protection acoustique active sur le Master"
+                    >
+                      <ShieldCheck className="w-2.5 h-2.5 text-purple-400 shrink-0" />
+                      <span>Anti-stridence</span>
+                    </span>
+                  </div>
+                )}
               </button>
             );
           })}
