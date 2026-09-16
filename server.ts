@@ -140,104 +140,135 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
   const mode = tuning.toLowerCase();
 
   try {
-    if (!fs.existsSync(MUSIC_BASE)) return null;
+    const hasPhysicalDir = fs.existsSync(MUSIC_BASE);
+    const checkFile = (candidatePath: string) => {
+      if (hasPhysicalDir) {
+        return fs.existsSync(candidatePath) ? candidatePath : null;
+      }
+      return candidatePath;
+    };
 
     // 1. VEL94EV - Splintered Self
     if (normId.includes('splintered') || normId.includes('vel94ev')) {
       if (mode.includes('440') || mode.includes('bypass')) {
         const p = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_440Hz.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       if (mode.includes('528') || mode.includes('binaural')) {
         const p = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_Phi_432Hz_528Hz_Binaural_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       if (mode.includes('phi')) {
         const p = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_Phi_432Hz_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       if (mode === '432' || mode === '432hz' || mode.includes('natural')) {
         const p = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_432Hz_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       const p = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_Phi_432Hz_Remastered.mp3');
-      if (fs.existsSync(p)) return p;
+      const found = checkFile(p);
+      if (found) return found;
     }
 
     // 2. Nickelback - Bones For The Crows
     if (normId.includes('bones') || normId.includes('nickelback')) {
       if (mode.includes('440') || mode.includes('bypass')) {
         const p1 = path.join(MUSIC_BASE, 'Nickelback - Bones For The Crows (Official Lyric Video)_Remastered.mp3');
-        if (fs.existsSync(p1)) return p1;
+        const f1 = checkFile(p1);
+        if (f1) return f1;
         const p2 = path.join(MUSIC_BASE, 'Nickelback', 'Nickelback - Bones For The Crows_440Hz.mp3');
-        if (fs.existsSync(p2)) return p2;
+        const f2 = checkFile(p2);
+        if (f2) return f2;
       }
       if (mode.includes('528') || mode.includes('binaural')) {
         const p = path.join(MUSIC_BASE, 'phi 432 hz 528 hz binaural', 'Nickelback - Bones For The Crows_Phi_432Hz_528Hz_Binaural_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       if (mode.includes('phi')) {
         const p1 = path.join(MUSIC_BASE, 'phi 432 hz', 'Nickelback - Bones For The Crows_Phi_432Hz_Remastered.mp3');
-        if (fs.existsSync(p1)) return p1;
+        const f1 = checkFile(p1);
+        if (f1) return f1;
         const p2 = path.join(MUSIC_BASE, 'output', 'Nickelback - Bones For The Crows_432Hz_Remastered.mp3');
-        if (fs.existsSync(p2)) return p2;
+        const f2 = checkFile(p2);
+        if (f2) return f2;
         const p3 = path.join(MUSIC_BASE, 'Nickelback - Bones For The Crows (Official Lyric Video)_Remastered.mp3');
-        if (fs.existsSync(p3)) return p3;
+        const f3 = checkFile(p3);
+        if (f3) return f3;
       }
       if (mode === '432' || mode === '432hz' || mode.includes('natural')) {
         const p1 = path.join(MUSIC_BASE, 'output', 'Nickelback - Bones For The Crows_432Hz_Remastered.mp3');
-        if (fs.existsSync(p1)) return p1;
+        const f1 = checkFile(p1);
+        if (f1) return f1;
         const p2 = path.join(MUSIC_BASE, 'Nickelback', 'Nickelback - Bones For The Crows (Official Lyric Video)_432Hz_Remastered.mp3');
-        if (fs.existsSync(p2)) return p2;
+        const f2 = checkFile(p2);
+        if (f2) return f2;
       }
       const p = path.join(MUSIC_BASE, 'Nickelback - Bones For The Crows (Official Lyric Video)_Remastered.mp3');
-      if (fs.existsSync(p)) return p;
+      const found = checkFile(p);
+      if (found) return found;
     }
 
     // 3. OneRepublic - Counting Stars
     if (normId.includes('counting') || normId.includes('onerepublic')) {
       if (mode.includes('440') || mode.includes('bypass')) {
         const p1 = path.join(MUSIC_BASE, 'OneRepublic - Counting Stars_Remastered.mp3');
-        if (fs.existsSync(p1)) return p1;
+        const f1 = checkFile(p1);
+        if (f1) return f1;
         const p2 = path.join(MUSIC_BASE, 'OneRepublic', 'OneRepublic - Counting Stars_440Hz.mp3');
-        if (fs.existsSync(p2)) return p2;
+        const f2 = checkFile(p2);
+        if (f2) return f2;
       }
       if (mode.includes('528') || mode.includes('binaural')) {
         const p = path.join(MUSIC_BASE, 'phi 432 hz 528 hz binaural', 'OneRepublic - Counting Stars_Phi_432Hz_528Hz_Binaural_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       if (mode.includes('phi')) {
-        const p = path.join(MUSIC_BASE, 'phi 432 hz', 'OneRepublic - Counting Stars_Phi_432Hz_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const p1 = path.join(MUSIC_BASE, 'phi 432 hz', 'OneRepublic - Counting Stars_Phi_432Hz_Remastered.mp3');
+        const f1 = checkFile(p1);
+        if (f1) return f1;
       }
       if (mode === '432' || mode === '432hz' || mode.includes('natural')) {
         const p = path.join(MUSIC_BASE, 'output', 'OneRepublic - Counting Stars_432Hz_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       const p = path.join(MUSIC_BASE, 'phi 432 hz', 'OneRepublic - Counting Stars_Phi_432Hz_Remastered.mp3');
-      if (fs.existsSync(p)) return p;
+      const found = checkFile(p);
+      if (found) return found;
     }
 
     // 4. The Soldier 4 - Mike Solo / Linkin Park
     if (normId.includes('soldier') || normId.includes('linkin') || normId.includes('mike_solo')) {
       if (mode.includes('440') || mode.includes('bypass')) {
         const p = path.join(MUSIC_BASE, 'The Soldier 4 - Mike SoloWAKSTBRTNLFY (Studio Version) Linkin Park_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       if (mode.includes('528') || mode.includes('binaural')) {
         const p = path.join(MUSIC_BASE, 'The Soldier 4 - Mike SoloWAKSTBRTNLFY (Studio Version) Linkin Park_Phi_432Hz_528Hz_Binaural_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       if (mode.includes('phi')) {
         const p = path.join(MUSIC_BASE, 'The Soldier 4 - Mike SoloWAKSTBRTNLFY (Studio Version) Linkin Park_Phi_432Hz_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       if (mode === '432' || mode === '432hz' || mode.includes('natural')) {
         const p = path.join(MUSIC_BASE, 'The Soldier 4 - Mike SoloWAKSTBRTNLFY (Studio Version) Linkin Park_432Hz_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const found = checkFile(p);
+        if (found) return found;
       }
       const p = path.join(MUSIC_BASE, 'The Soldier 4 - Mike SoloWAKSTBRTNLFY (Studio Version) Linkin Park_Phi_432Hz_Remastered.mp3');
-      if (fs.existsSync(p)) return p;
+      const found = checkFile(p);
+      if (found) return found;
     }
   } catch {
     return null;
