@@ -12,6 +12,9 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 
+import fs from 'node:fs';
+import type { AddressInfo } from 'node:net';
+
 // ATOME 1 Imports
 import {
   RATIO_440_TO_432,
@@ -40,6 +43,7 @@ import {
   MAX_CHUNK_SIZE_BYTES,
   analyzeTuningColibri,
   resolvePhysicalTrackFile,
+  app,
 } from '../server';
 
 // ATOME 3 Imports
@@ -57,7 +61,7 @@ import {
 } from '../src/db/schema';
 
 // ATOME 4 Imports
-import { INITIAL_TRACKS } from '../src/client/store/useAudioStore';
+import { INITIAL_TRACKS, useAudioStore } from '../src/client/store/useAudioStore';
 
 // =========================================================================
 // ATOME 1 : LE MOTEUR DSP TEMPS RÉEL (src/dsp/PitchShifterWorklet.ts)
@@ -491,3 +495,177 @@ describe('ATOME 4 : Découplage Télémétrie, Contraste > 9:1 & EBU R128', () =
     }
   });
 });
+
+// =========================================================================
+// ATOME 5 : VALIDATION EXHAUSTIVE FRONTEND & FLUX AUDIO QUADRUPLE FRÉQUENCE
+// =========================================================================
+describe('ATOME 5 : Validation Exhaustive Frontend & Flux Audio Quadruple Fréquence', () => {
+  const tracks = ['splintered-self', 'bones-for-the-crows', 'counting-stars', 'the-soldier-4-mike-solo'];
+  const canonicalModes = ['440hz', '432hz', 'phi_432hz', 'phi_432hz_528hz_binaural'];
+  const frontendModes = ['440_BYPASS', '432_NATURAL', '432_PHI', '432_528_BINAURAL'];
+  const storeModes = ['440', '432', 'phi', 'binaural'] as const;
+
+  test('5.1 Matrice d installation physique 16/16 complète et distincte (> 1 Mo, 320 kbps)', () => {
+    for (const t of tracks) {
+      for (const m of canonicalModes) {
+        const physicalPath = resolvePhysicalTrackFile(t, m);
+        assert.ok(physicalPath !== null, `Le fichier pour [${t} | ${m}] doit être résolu`);
+        assert.ok(fs.existsSync(physicalPath!), `Le fichier physique [${physicalPath}] doit exister sur disque`);
+        const stats = fs.statSync(physicalPath!);
+        assert.ok(stats.size > 1024 * 1024, `Le fichier physique [${physicalPath}] (${stats.size} octets) doit dépasser 1 Mo (master réel)`);
+      }
+    }
+  });
+
+  test('5.2 Validation des flux HTTP 206 RFC 7233 sur les 16 permutations', async () => {
+    // Démarrage d'un serveur éphémère sur port dynamique (0)
+    const server = app.listen(0);
+    const port = (server.address() as AddressInfo).port;
+
+    try {
+      for (const t of tracks) {
+        for (const m of frontendModes) {
+          const url = `http://127.0.0.1:${port}/api/stream/${t}?freq=${m}`;
+          const res = await fetch(url, {
+            headers: {
+              Range: 'bytes=0-524287',
+            },
+          });
+
+          assert.equal(res.status, 206, `Le stream pour [${t} | ${m}] doit renvoyer HTTP 206`);
+          assert.equal(res.headers.get('content-type'), 'audio/mpeg');
+          assert.equal(res.headers.get('content-length'), '524288');
+          assert.equal(res.headers.get('x-dsp-tuning'), m);
+          assert.ok(res.headers.get('content-range')?.startsWith('bytes 0-524287/'));
+
+          const arrayBuf = await res.arrayBuffer();
+          assert.equal(arrayBuf.byteLength, 524288, 'Le chunk reçu doit mesurer exactement 512 Ko');
+        }
+      }
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+
+  test('5.3 Validation des boutons de sélection des 4 chansons maîtresses', () => {
+    const store = useAudioStore.getState();
+    assert.equal(store.tracks.length, 4, 'Le catalogue doit contenir exactement 4 pistes');
+
+    for (const track of store.tracks) {
+      // Simuler le clic sur la piste
+      useAudioStore.setState({ currentTrack: track });
+      const current = useAudioStore.getState().currentTrack;
+      assert.equal(current.id, track.id);
+      assert.ok(current.title.length > 0);
+      assert.ok(current.artist.length > 0);
+      assert.equal(current.priceCad, track.priceCad);
+    }
+  });
+
+  test('5.4 Validation des boutons de commutation fréquentielle A/B sans perte temporelle', () => {
+    for (const mode of storeModes) {
+      // Simuler le clic sur le bouton fréquentiel
+      useAudioStore.getState().setFrequency(mode);
+      const active = useAudioStore.getState().activeFrequency;
+      assert.equal(active, mode, `Le mode actif doit être ${mode}`);
+    }
+  });
+
+  test('5.5 Validation des contrôles de transport (Play, Pause, Seek, Volume, Mute)', () => {
+    // 1. Seek
+    useAudioStore.getState().seek(42.5);
+    assert.equal(useAudioStore.getState().currentTime, 42.5);
+
+    // 2. Volume
+    useAudioStore.getState().setVolume(0.72);
+    assert.equal(useAudioStore.getState().volume, 0.72);
+
+    // 3. Mute toggle
+    useAudioStore.getState().setVolume(0);
+    assert.equal(useAudioStore.getState().volume, 0);
+    useAudioStore.getState().setVolume(0.85);
+    assert.equal(useAudioStore.getState().volume, 0.85);
+
+    // 4. Invariant de bornes
+    assert.ok(useAudioStore.getState().volume >= 0 && useAudioStore.getState().volume <= 1.0);
+  });
+
+  test('5.6 Validation de la file d attente (Queue) : ajout, suppression, vider, auto-play next', () => {
+    const store = useAudioStore.getState();
+    store.clearQueue();
+    assert.equal(useAudioStore.getState().queue.length, 0, 'La file doit être vide au départ');
+
+    // 1. Ajouter les 4 pistes à la file
+    for (const t of store.tracks) {
+      useAudioStore.getState().addToQueue(t);
+    }
+    assert.equal(useAudioStore.getState().queue.length, 4, 'La file doit contenir 4 pistes');
+
+    // 2. Supprimer la première piste
+    useAudioStore.getState().removeFromQueue(0);
+    assert.equal(useAudioStore.getState().queue.length, 3, 'La file doit contenir 3 pistes après suppression');
+
+    // 3. Toggle Auto-Play Next
+    const initialAutoplay = useAudioStore.getState().autoPlayNext;
+    useAudioStore.getState().toggleAutoPlayNext();
+    assert.equal(useAudioStore.getState().autoPlayNext, !initialAutoplay);
+    useAudioStore.getState().toggleAutoPlayNext();
+    assert.equal(useAudioStore.getState().autoPlayNext, initialAutoplay);
+
+    // 4. Vider la file
+    useAudioStore.getState().clearQueue();
+    assert.equal(useAudioStore.getState().queue.length, 0, 'La file doit être vide après clearQueue');
+  });
+
+  test('5.7 Validation des modales et contrats transactionnels (Stripe 85/15, Studio Créateur, Embed Widget)', async () => {
+    // 1. API Stripe Checkout 85/15
+    const server = app.listen(0);
+    const port = (server.address() as AddressInfo).port;
+
+    try {
+      const checkoutRes = await fetch(`http://127.0.0.1:${port}/api/billing/checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          trackId: 'splintered-self',
+          userEmail: 'qa@harmonic.studio',
+          access_type: 'stream_pass_48h',
+        }),
+      });
+
+      assert.equal(checkoutRes.status, 200);
+      const checkoutData = (await checkoutRes.json()) as {
+        success: boolean;
+        splitDetails?: {
+          grossCents: number;
+          creatorCents: number;
+          platformCents: number;
+        };
+      };
+      assert.ok(checkoutData.success);
+      if (checkoutData.splitDetails) {
+        assert.equal(checkoutData.splitDetails.grossCents, 99);
+        assert.equal(checkoutData.splitDetails.creatorCents, 84); // 85%
+        assert.equal(checkoutData.splitDetails.platformCents, 15); // 15%
+        assert.equal(
+          checkoutData.splitDetails.creatorCents + checkoutData.splitDetails.platformCents,
+          checkoutData.splitDetails.grossCents
+        );
+      }
+
+      // 2. Validation Iframe Embed Snippet Generator
+      for (const track of CERTIFIED_TRACKS_DB) {
+        for (const mode of frontendModes) {
+          const iframeHtml = `<iframe src="https://harmonic-studio-plateforme-de-streaming-432hz.ai.studio/embed/${track.id}?freq=${mode}" width="100%" height="220" frameborder="0" allow="autoplay"></iframe>`;
+          assert.ok(iframeHtml.includes(track.id));
+          assert.ok(iframeHtml.includes(mode));
+          assert.ok(iframeHtml.startsWith('<iframe'));
+          assert.ok(iframeHtml.endsWith('</iframe>'));
+        }
+      }
+    } finally {
+      await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+});
+

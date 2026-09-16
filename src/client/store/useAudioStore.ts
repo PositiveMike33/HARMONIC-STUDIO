@@ -527,7 +527,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
     }
 
     const matchingArchive = track.masterArchives?.find((a) => a.id === freq);
-    const audioUrl = matchingArchive?.customAudioUrl || track.audioUrl;
+    const audioUrl = matchingArchive?.customAudioUrl || `${track.audioUrl}?freq=${freq}`;
 
     if (currentTrack.id === track.id && activeFrequency === freq && isPlaying) {
       currentEngine.audioElement.pause();
@@ -878,7 +878,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
     } else if (masterSongUrl) {
       targetUrl = masterSongUrl;
     } else {
-      targetUrl = track.audioUrl;
+      targetUrl = `${track.audioUrl}?freq=${activeFrequency}`;
     }
 
     const targetDuration = activeFrequency === '432' ? 216 : (activeFrequency === 'phi' || activeFrequency === '440' || activeFrequency === 'binaural') ? 212 : track.durationSeconds;
@@ -931,7 +931,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
         } else if (masterSongUrl) {
           targetUrl = masterSongUrl;
         } else {
-          targetUrl = currentTrack.audioUrl;
+          targetUrl = `${currentTrack.audioUrl}?freq=${activeFrequency}`;
         }
 
         currentEngine.audioElement.src = targetUrl;
@@ -951,8 +951,8 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
     const { engine } = get();
     if (engine.audioElement) {
       engine.audioElement.currentTime = seconds;
-      set({ currentTime: seconds });
     }
+    set({ currentTime: seconds });
   },
 
   setFrequency: (mode: HarmonicFrequency) => {
@@ -1006,8 +1006,20 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
             engine.audioElement.play().catch(console.error);
           }
         }
+      } else if (engine.audioElement.src && engine.audioElement.src.includes('/api/stream/')) {
+        const wasPlaying = get().isPlaying;
+        const curTime = engine.audioElement.currentTime;
+        const streamUrl = `${currentTrack.audioUrl}?freq=${mode}`;
+        if (!engine.audioElement.src.includes(streamUrl)) {
+          engine.audioElement.src = streamUrl;
+          engine.audioElement.load();
+          engine.audioElement.currentTime = curTime;
+          if (wasPlaying) {
+            engine.audioElement.play().catch(console.error);
+          }
+        }
       } else if (!engine.audioElement.src || engine.audioElement.src === '') {
-        const fallbackUrl = masterSongUrl || currentTrack.audioUrl;
+        const fallbackUrl = masterSongUrl || `${currentTrack.audioUrl}?freq=${mode}`;
         engine.audioElement.src = fallbackUrl;
         engine.audioElement.load();
       }

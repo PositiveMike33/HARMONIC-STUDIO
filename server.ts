@@ -270,6 +270,25 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
       const found = checkFile(p);
       if (found) return found;
     }
+
+    // Secours statique sous public/audio
+    const publicBase = path.join(process.cwd(), 'public', 'audio');
+    const simpleTrackId = normId.includes('splintered') || normId.includes('vel94ev')
+      ? 'splintered-self'
+      : (normId.includes('bones') || normId.includes('nickelback')
+        ? 'bones-for-the-crows'
+        : (normId.includes('counting') || normId.includes('onerepublic')
+          ? 'counting-stars'
+          : 'the-soldier-4'));
+    const simpleMode = (mode.includes('528') || mode.includes('binaural'))
+      ? 'binaural'
+      : (mode.includes('phi')
+        ? 'phi'
+        : ((mode === '432' || mode === '432hz' || mode.includes('natural'))
+          ? '432'
+          : '440'));
+    const publicCandidate = path.join(publicBase, simpleTrackId, `${simpleMode}.mp3`);
+    if (fs.existsSync(publicCandidate)) return publicCandidate;
   } catch {
     return null;
   }
