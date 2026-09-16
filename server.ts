@@ -24,6 +24,9 @@ interface TrackRecord {
   unlocked: boolean;
   bpm: number;
   rootFreq: number;
+  isrc: string;
+  sha256Certificate: string;
+  musicalKey: string;
 }
 
 const TRACKS_DB: TrackRecord[] = [
@@ -31,7 +34,7 @@ const TRACKS_DB: TrackRecord[] = [
     id: 'splintered-self',
     title: 'Splintered Self',
     artist: 'VEL94EV',
-    durationSeconds: 234,
+    durationSeconds: 264,
     pitchShiftCents: -31.76,
     lufs: -14.0,
     truePeakDbtp: -1.0,
@@ -42,6 +45,9 @@ const TRACKS_DB: TrackRecord[] = [
     unlocked: true,
     bpm: 110,
     rootFreq: 220.0, // A3
+    isrc: 'CA-V94-24-00101',
+    sha256Certificate: 'a7b3c94f61e82019b8849c71a354d2f09918bcde76a21104e5f41289dc3301a9',
+    musicalKey: 'A Minor',
   },
   {
     id: 'bones-for-the-crows',
@@ -58,6 +64,9 @@ const TRACKS_DB: TrackRecord[] = [
     unlocked: true,
     bpm: 120,
     rootFreq: 196.0, // G3
+    isrc: 'US-RR1-11-00892',
+    sha256Certificate: 'c4e91278ba040188d3f56e9021bca908472199bdf013acde45b981290311ee84',
+    musicalKey: 'G Major',
   },
   {
     id: 'counting-stars',
@@ -74,6 +83,28 @@ const TRACKS_DB: TrackRecord[] = [
     unlocked: true,
     bpm: 122,
     rootFreq: 261.63, // C4
+    isrc: 'US-IR2-13-00142',
+    sha256Certificate: 'f812049ba18745cdbe9003847291aebcd401837466eefa19028374a91b2c4e51',
+    musicalKey: 'C# / Db Minor',
+  },
+  {
+    id: 'the-soldier-4',
+    title: 'The Soldier 4 (Linkin Park Tribute)',
+    artist: 'Mike Solo / Michael Gauthier',
+    durationSeconds: 218,
+    pitchShiftCents: -31.76,
+    lufs: -14.0,
+    truePeakDbtp: -1.0,
+    bitrateKbps: 320,
+    priceCad: 0.99,
+    creatorStripeId: 'acct_1MichaelSoloHarmonic',
+    originalTuningHz: 440.0,
+    unlocked: true,
+    bpm: 105,
+    rootFreq: 293.66, // D4
+    isrc: 'CA-H33-26-00004',
+    sha256Certificate: '99e401bca280149ff9203947bca88172049182bcfe00192384a77e81920349b1',
+    musicalKey: 'D Minor',
   },
 ];
 
@@ -116,10 +147,32 @@ function createWavHeader(dataLength: number, sampleRate = 44100, channels = 2, b
 }
 
 // Procedural audio sample synthesis for rich harmonic soundscape
-function synthesizeSample(timeSec: number, rootFreq: number, channel: number): number {
-  // Harmonic chords progression (Am - F - C - G)
+function synthesizeSample(timeSec: number, rootFreq: number, channel: number, freqMode = '432_NATURAL'): number {
+  let pitchMultiplier = 54 / 55; // Default 432 Hz tuning (-31.7666536 cents)
+  let phiMod = 1.0;
+  let binauralCarrier = 0.0;
+
+  if (freqMode === '440_BYPASS' || freqMode === '440') {
+    pitchMultiplier = 1.0;
+  } else {
+    pitchMultiplier = 54 / 55;
+  }
+
+  if (freqMode === '432_PHI' || freqMode === 'phi') {
+    const phiPhase = 2 * Math.PI * 1.6180339887 * timeSec;
+    phiMod = channel === 0 ? 1.0 + 0.04 * Math.sin(phiPhase) : 1.0 + 0.04 * Math.cos(phiPhase);
+  } else if (freqMode === '432_528_BINAURAL' || freqMode === 'binaural') {
+    const phiPhase = 2 * Math.PI * 1.6180339887 * timeSec;
+    phiMod = channel === 0 ? 1.0 + 0.04 * Math.sin(phiPhase) : 1.0 + 0.04 * Math.cos(phiPhase);
+    const binAmp = Math.pow(10, -24 / 20); // -24 dBFS
+    const deltaF = 1.6180339887 / 2.0;
+    const carrierF = channel === 0 ? 528.0 - deltaF : 528.0 + deltaF;
+    binauralCarrier = binAmp * Math.sin(2 * Math.PI * carrierF * timeSec);
+  }
+
+  const effectiveRoot = rootFreq * pitchMultiplier;
   const barTime = 2.0;
-  const progression = [rootFreq, rootFreq * 0.8409, rootFreq * 1.1892, rootFreq * 0.9439];
+  const progression = [effectiveRoot, effectiveRoot * 0.8409, effectiveRoot * 1.1892, effectiveRoot * 0.9439];
   const chordIdx = Math.floor(timeSec / barTime) % progression.length;
   const chordBase = progression[chordIdx];
 
@@ -138,7 +191,7 @@ function synthesizeSample(timeSec: number, rootFreq: number, channel: number): n
   const panOffset = channel === 0 ? 0.95 : 1.05;
   const tremolo = 0.9 + 0.1 * Math.sin(2 * Math.PI * 1.618 * timeSec + (channel * Math.PI * 0.5));
 
-  const total = (h1 * 0.4 + h2 * 0.25 + h3 * 0.15 + subBass * 0.25 + kick * 0.3) * panOffset * tremolo;
+  const total = (h1 * 0.4 + h2 * 0.25 + h3 * 0.15 + subBass * 0.25 + kick * 0.3) * panOffset * tremolo * phiMod + binauralCarrier;
   return Math.max(-0.95, Math.min(0.95, total * 0.65));
 }
 
@@ -162,6 +215,7 @@ app.get('/api/tracks', (req, res) => {
 // 2. RFC 7233 HTTP 206 Partial Range Streaming
 app.get('/api/stream/:trackId', (req, res) => {
   const track = TRACKS_DB.find((t) => t.id === req.params.trackId) || TRACKS_DB[0];
+  const freqMode = (req.query.freq as string) || '432_NATURAL';
   const sampleRate = 44100;
   const channels = 2;
   const bytesPerSample = 2;
@@ -207,7 +261,7 @@ app.get('/api/stream/:trackId', (req, res) => {
     'Content-Type': 'audio/wav',
     'Cache-Control': 'no-cache',
     'X-Audio-Bitrate': '320kbps-cbr-equivalent',
-    'X-DSP-Tuning': '432Hz-Verdi-Phi-Ready',
+    'X-DSP-Tuning': `432Hz-Verdi-Phi-Ready-${freqMode}`,
     'X-Colibri-BasePitch': String(track.originalTuningHz),
     'X-Colibri-Action': track.originalTuningHz === 432.0 ? 'BYPASS_SHIFT' : 'APPLY_SHIFT',
   });
@@ -226,7 +280,7 @@ app.get('/api/stream/:trackId', (req, res) => {
       const isHighByte = dataOffset % bytesPerSample === 1;
 
       const timeSec = sampleIndex / sampleRate;
-      const sampleVal = synthesizeSample(timeSec, track.rootFreq, channel);
+      const sampleVal = synthesizeSample(timeSec, track.rootFreq, channel, freqMode);
       const int16Val = Math.floor(sampleVal * 32767);
 
       if (isHighByte) {
@@ -335,6 +389,65 @@ app.post('/api/acp/rpc', (req, res) => {
 });
 
 // 5. Stripe Connect & Stripe Billing Endpoints
+app.post('/api/billing/checkout', (req, res) => {
+  const { trackId, userId = 'user_listener_default' } = req.body || {};
+  const track = TRACKS_DB.find((t) => t.id === trackId) || TRACKS_DB[0];
+
+  // AoT Invariant: Exact integer-cents arithmetic (99 cents -> 84 cents creator, 15 cents platform)
+  const totalAmountCents = Math.round(track.priceCad * 100);
+  const creatorPayoutCents = Math.floor(totalAmountCents * 0.85); // 84 cents
+  const platformFeeCents = totalAmountCents - creatorPayoutCents; // 15 cents
+
+  const totalAmount = totalAmountCents / 100;
+  const creatorPayout = creatorPayoutCents / 100;
+  const platformFee = platformFeeCents / 100;
+
+  const paymentIntentId = 'pi_' + crypto.randomBytes(12).toString('hex');
+  const purchaseId = 'pur_' + crypto.randomBytes(8).toString('hex');
+
+  const purchase: PurchaseRecord = {
+    id: purchaseId,
+    userId,
+    trackId: track.id,
+    amountCad: totalAmount,
+    creatorPayoutCad: creatorPayout,
+    platformFeeCad: platformFee,
+    stripePaymentIntentId: paymentIntentId,
+    createdAt: new Date().toISOString(),
+  };
+
+  PURCHASES_DB.push(purchase);
+
+  // HMAC SHA-256 for cryptographic transaction integrity
+  const hmacSignature = crypto
+    .createHmac('sha256', process.env.STRIPE_WEBHOOK_SECRET || 'harmonic_souverain_secret')
+    .update(`${purchaseId}:${totalAmountCents}:${creatorPayoutCents}:${paymentIntentId}`)
+    .digest('hex');
+
+  const sessionId = 'cs_' + crypto.randomBytes(12).toString('hex');
+
+  res.json({
+    success: true,
+    mode: 'OFFLINE_DETERMINISTIC_EMULATION',
+    checkoutUrl: `/success?session_id=${sessionId}&track=${track.id}`,
+    sessionId,
+    hmacSignature,
+    split: {
+      totalCents: totalAmountCents,
+      creatorSplitCents: creatorPayoutCents,
+      platformFeeCents: platformFeeCents,
+      creatorPercentage: '85%',
+      platformPercentage: '15%',
+      escrow: 'J+7 Express',
+      creatorAmount: `${creatorPayout.toFixed(2)} $ CAD`,
+      platformFee: `${platformFee.toFixed(2)} $ CAD`,
+      creatorConnectedAccount: track.creatorStripeId,
+    },
+    transaction: purchase,
+    message: `Master "${track.title}" prêt pour règlement Stripe Connect 85/15 sous séquestre J+7.`,
+  });
+});
+
 app.post('/api/stripe/checkout-single', (req, res) => {
   const { trackId, userId = 'user_listener_default' } = req.body || {};
   const track = TRACKS_DB.find((t) => t.id === trackId) || TRACKS_DB[0];
@@ -429,6 +542,9 @@ app.post('/api/creator/upload', (req, res) => {
     unlocked: true,
     bpm: 115,
     rootFreq: 220.0,
+    isrc: `CA-H33-${new Date().getFullYear() % 100}-${Math.floor(10000 + Math.random() * 90000)}`,
+    sha256Certificate: crypto.randomBytes(32).toString('hex'),
+    musicalKey: 'A Minor',
   };
   TRACKS_DB.unshift(newTrack);
   res.json({ success: true, track: newTrack });

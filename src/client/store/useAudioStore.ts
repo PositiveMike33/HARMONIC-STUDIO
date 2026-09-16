@@ -57,6 +57,24 @@ export const INITIAL_TRACKS: Track[] = [
     audioUrl: '/api/stream/counting-stars',
     spectralFingerprint: 'SHA256:432ac918...1618',
   },
+  {
+    id: 'the-soldier-4',
+    title: 'The Soldier 4 (Linkin Park Tribute)',
+    artist: 'Mike Solo / Michael Gauthier',
+    durationSeconds: 218,
+    pitchShiftCents: -31.76,
+    lufs: -14.0,
+    truePeakDbtp: -1.0,
+    bitrateKbps: 320,
+    priceCad: 0.99,
+    unlocked: true,
+    creatorStripeId: 'acct_1MichaelSoloHarmonic',
+    originalTuningHz: 440.0,
+    coverGradientFrom: '#3B82F6',
+    coverGradientTo: '#1D4ED8',
+    audioUrl: '/api/stream/the-soldier-4',
+    spectralFingerprint: 'SHA256:99e401bc...49b1',
+  },
 ];
 
 interface AudioEngineState {
