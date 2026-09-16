@@ -177,14 +177,20 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
         if (fs.existsSync(p)) return p;
       }
       if (mode.includes('phi')) {
-        const p = path.join(MUSIC_BASE, 'phi 432 hz', 'Nickelback - Bones For The Crows_Phi_432Hz_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const p1 = path.join(MUSIC_BASE, 'phi 432 hz', 'Nickelback - Bones For The Crows_Phi_432Hz_Remastered.mp3');
+        if (fs.existsSync(p1)) return p1;
+        const p2 = path.join(MUSIC_BASE, 'output', 'Nickelback - Bones For The Crows_432Hz_Remastered.mp3');
+        if (fs.existsSync(p2)) return p2;
+        const p3 = path.join(MUSIC_BASE, 'Nickelback - Bones For The Crows (Official Lyric Video)_Remastered.mp3');
+        if (fs.existsSync(p3)) return p3;
       }
       if (mode === '432' || mode === '432hz' || mode.includes('natural')) {
-        const p = path.join(MUSIC_BASE, 'output', 'Nickelback - Bones For The Crows_432Hz_Remastered.mp3');
-        if (fs.existsSync(p)) return p;
+        const p1 = path.join(MUSIC_BASE, 'output', 'Nickelback - Bones For The Crows_432Hz_Remastered.mp3');
+        if (fs.existsSync(p1)) return p1;
+        const p2 = path.join(MUSIC_BASE, 'Nickelback', 'Nickelback - Bones For The Crows (Official Lyric Video)_432Hz_Remastered.mp3');
+        if (fs.existsSync(p2)) return p2;
       }
-      const p = path.join(MUSIC_BASE, 'phi 432 hz', 'Nickelback - Bones For The Crows_Phi_432Hz_Remastered.mp3');
+      const p = path.join(MUSIC_BASE, 'Nickelback - Bones For The Crows (Official Lyric Video)_Remastered.mp3');
       if (fs.existsSync(p)) return p;
     }
 

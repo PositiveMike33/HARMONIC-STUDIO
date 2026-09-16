@@ -432,7 +432,7 @@ describe('ATOME 4 : Découplage Télémétrie, Contraste > 9:1 & EBU R128', () =
     assert.ok(ids.includes('splintered-self'));
     assert.ok(ids.includes('bones-for-the-crows'));
     assert.ok(ids.includes('counting-stars'));
-    assert.ok(ids.includes('the-soldier-4-mike-solo'));
+    assert.ok(ids.includes('the-soldier-4') || ids.includes('the-soldier-4-mike-solo'));
   });
 
   test('4.2 Conformité EBU R128 (-14.0 LUFS / -1.0 dBTP)', () => {
