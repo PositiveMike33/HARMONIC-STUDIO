@@ -15,6 +15,7 @@ import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import crypto from 'crypto';
 import { billingRouter, billingStore } from './server/billing';
+import { harmonicRouter, mediaRouter } from './server/harmonicStudio/routes';
 
 const PORT = Number(process.env.PORT) || 3033;
 const app = express();
@@ -25,6 +26,12 @@ app.use(express.json());
 app.use('/api/stripe', billingRouter);
 app.use('/api/billing', billingRouter);
 app.use('/api/creator', billingRouter);
+
+// Intégration des pipelines Harmonic Studio & Media Stream
+app.use('/api/harmonic', harmonicRouter);
+app.use('/api/v1/harmonic', harmonicRouter);
+app.use('/api/media', mediaRouter);
+app.use('/api/v1/media', mediaRouter);
 
 // ==========================================
 // INVENTAIRE DES 4 PISTES CERTIFIÉES
@@ -594,18 +601,20 @@ app.post('/api/acp/rpc', (req: Request, res: Response) => {
 
 // 6. Démarrage du serveur et intégration Vite SPA
 async function startServer() {
-  if (process.env.NODE_ENV !== 'production') {
+  const distPath = path.join(process.cwd(), 'dist');
+  const hasDist = fs.existsSync(path.join(distPath, 'index.html'));
+
+  if (process.env.NODE_ENV === 'production' || hasDist) {
+    app.use(express.static(distPath));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
+  } else {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
   }
 
   app.listen(PORT, '0.0.0.0', () => {
