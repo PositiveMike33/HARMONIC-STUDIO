@@ -1,0 +1,33 @@
+{
+  "session_id": "acp_sess_1789772620",
+  "step_id": "task_001",
+  "timestamp": "2026-09-18T23:03:40Z",
+  "task_description": "Tâche 1 : Rédaction des spécifications d'ingénierie et définition des protocoles de communication inter-agents.",
+  "status": "success",
+  "exit_code": 0,
+  "events": [
+    {
+      "time_offset_ms": 50,
+      "type": "agent_assigned",
+      "agent": "Goose_Coder_ACP"
+    },
+    {
+      "time_offset_ms": 120,
+      "type": "sandbox_exec_start",
+      "command": "build-step --task task_001"
+    },
+    {
+      "time_offset_ms": 480,
+      "type": "websocket_event",
+      "event": "compilation_in_progress"
+    },
+    {
+      "time_offset_ms": 950,
+      "type": "sandbox_exec_complete",
+      "status": "ok"
+    }
+  ],
+  "output_artifacts": [
+    "build/intermediates/task_001_artifact.bin"
+  ]
+}

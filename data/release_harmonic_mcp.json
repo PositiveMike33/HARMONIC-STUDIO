@@ -1,0 +1,25 @@
+{
+  "release_id": "rel_1789772635",
+  "built_at": "2026-09-18T23:03:55Z",
+  "project_name": "",
+  "version": "1.0.0",
+  "platform_surface": "Berd-Hybrid-Deployment-Platform",
+  "packaging_target": "full",
+  "artifacts": [
+    {
+      "type": "native_desktop_binary",
+      "framework": "Tauri-2-Rust-React19",
+      "path": "dist/bundles/berd__1.0.0_x64.exe",
+      "size_mb": 18.4,
+      "platform": "windows-x86_64"
+    },
+    {
+      "type": "container_image",
+      "runtime": "Docker-OCI-MultiArch",
+      "tag": "berd-hybrid/:1.0.0",
+      "size_mb": 142.0,
+      "platform": "linux-amd64/arm64"
+    }
+  ],
+  "deployment_status": "ready_for_production"
+}
