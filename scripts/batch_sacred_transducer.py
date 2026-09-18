@@ -157,13 +157,21 @@ def process_track(mp3_path: Path):
         target_name_phi = f"{base_name}_Phi_432Hz_Remastered.mp3"
         dest_phi_shelf = PHI_432_DIR / target_name_phi
 
-        print(f"  [1/2] Rendering Phi 432 Hz (Gain Phi: {GAIN_PHI_ONLY})...")
         binaural_expr = f"{GAIN_PHI_ONLY:.4f}*sin(2*PI*{PAIR_432_LEFT:.6f}*t)|{GAIN_PHI_ONLY:.4f}*sin(2*PI*{PAIR_432_RIGHT:.6f}*t)"
 
+        clarity_chain = (
+            "equalizer=f=1800:t=q:w=1.4:g=1.2,"
+            "equalizer=f=4200:t=q:w=2.2:g=-2.5,"
+            "equalizer=f=7500:t=q:w=1.8:g=-2.0,"
+            "equalizer=f=12000:t=s:width=1.0:g=-1.0,"
+            "stereotools=mlev=0.96:slev=1.22:balance_in=0:softclip=1"
+        )
+
         dsp_base_phi = (
-            "[0:a]aresample=96000:resampler=soxr:precision=33:osf=fltp,"
-            "volume=-2.5dB[music_432];"
-            f"aevalsrc=exprs='{binaural_expr}':s=96000[phi_binaural];"
+            "[0:a]volume=-2.0dB,adeclip,"
+            "aresample=96000:resampler=soxr:precision=33:osf=fltp,"
+            f"{clarity_chain}[music_432];"
+            f"aevalsrc=exprs='{binaural_expr}':s=96000,lowpass=f=650[phi_binaural];"
             "[music_432][phi_binaural]amix=inputs=2:duration=first:dropout_transition=2,"
             "alimiter=limit=-1.0dB:attack=5:release=50:asc=1"
         )
@@ -228,9 +236,10 @@ def process_track(mp3_path: Path):
         right_expr = f"{GAIN_DUAL_432:.4f}*sin(2*PI*{PAIR_432_RIGHT:.6f}*t) + {GAIN_DUAL_528:.4f}*sin(2*PI*{PAIR_528_RIGHT:.6f}*t)"
 
         dsp_base_528 = (
-            "[0:a]aresample=96000:resampler=soxr:precision=33:osf=fltp,"
-            "volume=-3.0dB[music_432];"
-            f"aevalsrc=exprs='{left_expr}|{right_expr}':s=96000[matrix_binaural];"
+            "[0:a]volume=-2.0dB,adeclip,"
+            "aresample=96000:resampler=soxr:precision=33:osf=fltp,"
+            f"{clarity_chain}[music_432];"
+            f"aevalsrc=exprs='{left_expr}|{right_expr}':s=96000,lowpass=f=650[matrix_binaural];"
             "[music_432][matrix_binaural]amix=inputs=2:duration=first:dropout_transition=2,"
             "alimiter=limit=-1.0dB:attack=5:release=50:asc=1"
         )

@@ -34,13 +34,20 @@ DEFAULT_LUFS_TARGET = -14.0
 DEFAULT_TRUE_PEAK = -1.0
 DEFAULT_BITRATE = "320k"
 
-# DSP Filter for 3D Ambiophonic immersion without high-pitch harshness
+# DSP Filter for 3D Ambiophonic immersion with Guitar Anti-Fizz & Crystal Clarity
+# - Smooth transients (detector=soft) eliminates granular chatter on distorted guitars
+# - 1.8 kHz (+1.2 dB): enhances guitar body, riff punch & vocal articulation
+# - 4.2 kHz (-2.5 dB): surgical notch eliminating abrasive digital fizz/scratch on electric guitars
+# - 7.5 kHz (-2.0 dB): removes sandpaper sizzle and harshness
+# - 12 kHz (-1.0 dB): smooth, silky top-end air
+# - stereotools (slev=1.22): pristine 3D Ambiophonic widening without out-of-phase extrastereo comb filtering
 DSP_AMBIOPHONIC = (
     "aresample=96000:resampler=soxr:precision=33:osf=fltp,"
-    "extrastereo=m=1.35,"
-    "equalizer=f=3200:t=q:w=1.5:g=-1.0,"
-    "equalizer=f=12000:t=s:width=1.0:g=-1.5,"
-    "stereotools=mlev=0.90:slev=1.20:balance_in=0:softclip=1"
+    "equalizer=f=1800:t=q:w=1.4:g=1.2,"
+    "equalizer=f=4200:t=q:w=2.2:g=-2.5,"
+    "equalizer=f=7500:t=q:w=1.8:g=-2.0,"
+    "equalizer=f=12000:t=s:width=1.0:g=-1.0,"
+    "stereotools=mlev=0.96:slev=1.22:balance_in=0:softclip=1"
 )
 
 

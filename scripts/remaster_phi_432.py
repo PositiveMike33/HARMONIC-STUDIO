@@ -316,16 +316,25 @@ def process_remaster_phi_432hz(
         print("\n[4/5] Constructing DSP Matrix: 432 Hz Retuning + Phi Binaural Layer (96 kHz soxr float32)...")
         
         # Rubberband 432 Hz pitch shifting + Phi binaural generator with progressive crescendo & decrescendo
-        duration_sec = get_audio_duration(source_wav)
-        binaural_gen = f"aevalsrc=exprs='{binaural_gain:.6f}*sin(2*PI*{LEFT_CARRIER:.6f}*t)|{binaural_gain:.6f}*sin(2*PI*{RIGHT_CARRIER:.6f}*t)':s=96000[phi_raw];"
+        binaural_gen = f"aevalsrc=exprs='{binaural_gain:.6f}*sin(2*PI*{LEFT_CARRIER:.6f}*t)|{binaural_gain:.6f}*sin(2*PI*{RIGHT_CARRIER:.6f}*t)':s=96000,lowpass=f=650[phi_raw];"
+
+        # Guitar Anti-Fizz & Ambiophonic Clarity EQ chain
+        clarity_chain = (
+            "equalizer=f=1800:t=q:w=1.4:g=1.2,"
+            "equalizer=f=4200:t=q:w=2.2:g=-2.5,"
+            "equalizer=f=7500:t=q:w=1.8:g=-2.0,"
+            "equalizer=f=12000:t=s:width=1.0:g=-1.0,"
+            "stereotools=mlev=0.96:slev=1.22:balance_in=0:softclip=1"
+        )
 
         if dynamic_gate:
             # Dynamic RMS sidechain gating: when the music pauses or dips into silence (empty moments),
             # the Phi carrier is smoothly muted (-60 dB) to prevent any noticeable humming or drone.
             dsp_base = (
-                "[0:a]aresample=96000:resampler=soxr:precision=33:osf=fltp,"
-                "volume=-2.5dB,"
-                "rubberband=pitch=0.98181818:tempo=1.0:transients=crisp:detector=compound:phase=laminar:formant=preserved:pitchq=quality:channels=together,asplit=2[music_main][music_sc];"
+                "[0:a]volume=-2.0dB,adeclip,"
+                "aresample=96000:resampler=soxr:precision=33:osf=fltp,"
+                "rubberband=pitch=0.98181818:tempo=1.0:transients=smooth:detector=soft:phase=laminar:formant=preserved:pitchq=quality:channels=together,"
+                f"{clarity_chain},asplit=2[music_main][music_sc];"
                 f"{binaural_gen}"
                 f"[phi_raw][music_sc]sidechaingate=threshold={gate_threshold:.4f}:range={DEFAULT_GATE_RANGE}:attack={DEFAULT_GATE_ATTACK}:release={DEFAULT_GATE_RELEASE}:ratio=3:knee=2.8:detection=rms[phi_binaural];"
                 "[music_main][phi_binaural]amix=inputs=2:duration=first:dropout_transition=2,"
@@ -333,9 +342,10 @@ def process_remaster_phi_432hz(
             )
         else:
             dsp_base = (
-                "[0:a]aresample=96000:resampler=soxr:precision=33:osf=fltp,"
-                "volume=-2.5dB,"
-                "rubberband=pitch=0.98181818:tempo=1.0:transients=crisp:detector=compound:phase=laminar:formant=preserved:pitchq=quality:channels=together[music_432];"
+                "[0:a]volume=-2.0dB,adeclip,"
+                "aresample=96000:resampler=soxr:precision=33:osf=fltp,"
+                "rubberband=pitch=0.98181818:tempo=1.0:transients=smooth:detector=soft:phase=laminar:formant=preserved:pitchq=quality:channels=together,"
+                f"{clarity_chain}[music_432];"
                 f"{binaural_gen}"
                 "[music_432][phi_raw]amix=inputs=2:duration=first:dropout_transition=2,"
                 "alimiter=limit=-1.0dB:attack=5:release=50:asc=1"

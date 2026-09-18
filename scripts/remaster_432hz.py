@@ -269,18 +269,21 @@ def process_remaster_432hz(
         else:
             print("\n[3/5] No thumbnail found, proceeding without embedded artwork.")
 
-        # Step 4: 432 Hz Retuning & DSP Analysis
-        source_sr = get_sample_rate(source_wav)
-        new_sr = round(source_sr * (432.0 / 440.0))
-        print(f"\n[4/5] 432 Hz Retuning (Source SR: {source_sr} Hz -> Asetrate: {new_sr} Hz -> Resample: {source_sr} Hz)...")
+        # Step 4: 432 Hz Retuning & DSP Analysis (Rubberband 100% Original Tempo Preserved + Guitar Anti-Fizz Clarity EQ)
+        print(f"\n[4/5] 432 Hz Retuning (Rubberband SOXR 96kHz + Smooth Transients + Anti-Fizz Ambiophonic Clarity)...")
 
-        # 432 Hz transposition + highpass 30 Hz + dynamic clarity EQ
+        # 432 Hz transposition (tempo 1.0 preserved) + anti-clipping + anti-fizz EQ + 3D ambiophonic spatializer
         dsp_pre_filters = (
-            f"asetrate={new_sr},"
-            f"aresample={source_sr},"
+            "volume=-2.0dB,"
+            "adeclip,"
             "highpass=f=30,"
-            "equalizer=f=3200:t=q:w=1.5:g=1.2,"
-            "equalizer=f=12000:t=s:width=1.0:g=1.5"
+            "aresample=96000:resampler=soxr:precision=33:osf=fltp,"
+            "rubberband=pitch=0.98181818:tempo=1.0:transients=smooth:detector=soft:phase=laminar:formant=preserved:pitchq=quality:channels=together,"
+            "equalizer=f=1800:t=q:w=1.4:g=1.2,"
+            "equalizer=f=4200:t=q:w=2.2:g=-2.5,"
+            "equalizer=f=7500:t=q:w=1.8:g=-2.0,"
+            "equalizer=f=12000:t=s:width=1.0:g=-1.0,"
+            "stereotools=mlev=0.96:slev=1.22:balance_in=0:softclip=1"
         )
 
         print(f"  Pass 1/2: Analyzing integrated loudness at 432 Hz...")
