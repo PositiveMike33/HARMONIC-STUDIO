@@ -1,0 +1,151 @@
+{
+  "project_name": "1. Contexte & Vision Stratégique",
+  "source_guide": "C:\\Users\\th3th\\HARMONIC-STUDIO\\docs\\architecture_harmonic_mcp.md",
+  "parsed_at": "2026-09-18T22:58:35Z",
+  "summary": {
+    "total_phases": 6,
+    "total_tasks": 15
+  },
+  "phases": [
+    {
+      "phase_id": "phase_1",
+      "title": "2. Décomposition des Phases d'Ingénierie ACP",
+      "tasks": []
+    },
+    {
+      "phase_id": "phase_2",
+      "title": "Phase 1 : Cadrage Architectural et Manifestes ACP",
+      "tasks": [
+        {
+          "task_id": "task_001",
+          "description": "Tâche 1 : Rédaction des spécifications d'ingénierie et définition des protocoles de communication inter-agents.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_002",
+          "description": "Tâche 2 : Décomposition atomique des tâches et projection prédictive des ressources avec le moteur TimesFM.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_003",
+          "description": "Tâche 3 : Empaquetage du manifeste unifié d'exécution pour Goose ACP.",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        }
+      ]
+    },
+    {
+      "phase_id": "phase_3",
+      "title": "Phase 2 : Isolation Multi-Branches Git & Moteurs MCP",
+      "tasks": [
+        {
+          "task_id": "task_004",
+          "description": "Tâche 4 : Initialisation de la branche `feature/mcp-yue`, intégration du moteur YuE et implémentation du serveur MCP `mcp_yue_server.py`.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_005",
+          "description": "Tâche 5 : Initialisation de la branche `feature/mcp-bs-roformer`, intégration du moteur BS-RoFormer et implémentation du serveur MCP `mcp_roformer_server.py`.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_006",
+          "description": "Tâche 6 : Initialisation de la branche `feature/mcp-ace-step`, intégration du moteur ACE-Step 1.5 et implémentation du serveur MCP `mcp_acestep_server.py`.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_007",
+          "description": "Tâche 7 : Création des schémas JSON MCP et enregistrement dans `mcp_config.json` sous Antigravity.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        }
+      ]
+    },
+    {
+      "phase_id": "phase_4",
+      "title": "Phase 3 : Intégration Backend & Passerelle Studio",
+      "tasks": [
+        {
+          "task_id": "task_008",
+          "description": "Tâche 8 : Implémentation de la passerelle `aiAudioMcpGateway.ts` avec gestion des jobs asynchrones et normalisation audio THIRTY3.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_009",
+          "description": "Tâche 9 : Enregistrement des routes API REST/WebSocket dans `server.ts` et correction de la résolution physique des pistes.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_010",
+          "description": "Tâche 10 : Consolidation unifiée des branches dans `main`.",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        }
+      ]
+    },
+    {
+      "phase_id": "phase_5",
+      "title": "Phase 4 : Interface Utilisateur Studio Pro (Frontend)",
+      "tasks": [
+        {
+          "task_id": "task_011",
+          "description": "Tâche 11 : Développement du composant graphique `AiAudioMasteringSuiteModal.tsx` avec les 3 onglets YuE, BS-RoFormer et ACE-Step.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_012",
+          "description": "Tâche 12 : Câblage du déclencheur dans le panneau principal `MainHeaderBox.tsx` et intégration Zustand.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        }
+      ]
+    },
+    {
+      "phase_id": "phase_6",
+      "title": "Phase 5 : Validation Formelle, Sandbox & Déploiement Berd",
+      "tasks": [
+        {
+          "task_id": "task_013",
+          "description": "Tâche 13 : Exécution de la suite complète de tests unitaires et vérification de non-régression à 100%.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_014",
+          "description": "Tâche 14 : Initialisation de la session sandbox Goose ACP et certification de conformité du bac à sable.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_015",
+          "description": "Tâche 15 : Audit de complexité combinatoire adaptatif HexStellar Cortex et émission du reçu scellé SHA-256 via `hybrid_deployer.py`.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        }
+      ]
+    }
+  ]
+}
