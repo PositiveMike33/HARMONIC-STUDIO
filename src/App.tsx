@@ -463,24 +463,24 @@ export default function App() {
                   },
                   {
                     id: '432_NATURAL',
-                    title: '432 Hz Verdi Naturel',
-                    badge: 'Harmonique',
-                    desc: 'Transposition r = 54/55 (-31.7667 cents) préservation des transitoires',
+                    title: '432 Hz Ambiophonique 3D',
+                    badge: 'Ambiophonie 3D',
+                    desc: 'Spatialisation holophonique 3D + accordage Verdi r = 54/55 (-31.7667 cents) + notch anti-fizz',
                     color: 'text-[#00FF9D] border-[#00FF9D]/30',
                   },
                   {
                     id: '432_PHI',
-                    title: 'Φ 432 Hz Nombre d\'Or',
-                    badge: 'Binaural 1.618 Hz',
-                    desc: 'Modulation quadrature I/Q à 1.618033 Hz (m = 0.04)',
+                    title: 'Φ 432 Hz Nombre d\'Or Ambiophonique',
+                    badge: 'Binaural Φ 1.618 Hz',
+                    desc: 'Modulation quadrature I/Q à 1.618033 Hz (m = 0.04) + immersion 3D Ambiophonique',
                     color: 'text-[#F59E0B] border-[#F59E0B]/30',
                   },
                   {
                     id: '432_528_BINAURAL',
-                    title: 'Φ 432 Hz + 528 Hz Solfeggio',
-                    badge: 'Double Matrice',
-                    desc: 'Porteuse sacrée 528 Hz calibrée à -24 dBFS + divergence Delta-Phi',
-                    color: 'text-[#F59E0B] border-[#F59E0B]/30',
+                    title: '(528 Hz - 432 Hz) × Φ Ambiophonique',
+                    badge: 'Double Matrice 3D',
+                    desc: 'Battement sacré (528 Hz - 432 Hz = 96 Hz) × 1.618033 = 155.33 Hz + 432 Hz Ambiophonique 3D',
+                    color: 'text-[#00FF9D] border-[#00FF9D]/40',
                   },
                 ].map((mode) => {
                   const isActive = freqMode === mode.id;
@@ -528,6 +528,24 @@ export default function App() {
                   <div className="text-sm font-bold text-[#F59E0B]">{currentCarriers.rightHz} Hz</div>
                 </div>
               </div>
+              {freqMode === '432_528_BINAURAL' && (
+                <div className="mt-3 bg-[#00FF9D]/10 border border-[#00FF9D]/30 p-2 rounded text-[11px] text-[#00FF9D] flex items-center justify-between font-mono">
+                  <span>RÉSONANCE SACRÉE Δ-Φ :</span>
+                  <span className="font-bold">(528 - 432) × 1.618033 = 155.33 Hz</span>
+                </div>
+              )}
+              {freqMode === '432_NATURAL' && (
+                <div className="mt-3 bg-[#00FF9D]/10 border border-[#00FF9D]/30 p-2 rounded text-[11px] text-[#00FF9D] flex items-center justify-between font-mono">
+                  <span>ACOUSTIQUE 3D :</span>
+                  <span className="font-bold">Ambiophonie (mlev=0.96 / slev=1.22)</span>
+                </div>
+              )}
+              {freqMode === '432_PHI' && (
+                <div className="mt-3 bg-[#F59E0B]/10 border border-[#F59E0B]/30 p-2 rounded text-[11px] text-[#F59E0B] flex items-center justify-between font-mono">
+                  <span>MODULATION QUADRATURE :</span>
+                  <span className="font-bold">Φ = 1.618033 Hz (Ambiophonique 3D)</span>
+                </div>
+              )}
             </div>
 
             {/* Réglage du Volume Principal */}
