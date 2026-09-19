@@ -1,0 +1,16 @@
+{
+  "workspace": "C:\\Users\\th3th\\HARMONIC-STUDIO",
+  "audited_at": "2026-09-19T20:13:59Z",
+  "files_scanned": 1240,
+  "mode": "adaptive",
+  "detected_complexity_signatures": [
+    "tsp",
+    "cortex",
+    "ising"
+  ],
+  "recommendation": {
+    "requires_hexstellar_cortex": true,
+    "routing_engine": "hexstellar_cortex",
+    "rationale": "Signature combinatoire détectée requérant une vérification formelle certifiée et basse énergie."
+  }
+}

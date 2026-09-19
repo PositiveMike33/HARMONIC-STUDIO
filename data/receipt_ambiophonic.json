@@ -1,0 +1,17 @@
+{
+  "receipt_id": "hex_rcpt_1789848839",
+  "verified_at": "2026-09-19T20:13:59Z",
+  "verification_mode": "adaptive",
+  "verification_engine": "Berd-Local-Test-Verifier",
+  "assurance": {
+    "status": "verified",
+    "certification_level": "PASS_ALL_UNIT_TESTS",
+    "measured_energy_optimization_pct": 0.0,
+    "deterministic_receipt": "sha256_hex_rcpt_1789848839_signed"
+  },
+  "coverage_metrics": {
+    "unit_tests_pass_rate": 1.0,
+    "regression_risk": 0.0,
+    "zero_leak_assurance": true
+  }
+}

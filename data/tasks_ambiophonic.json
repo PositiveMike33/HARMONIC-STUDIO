@@ -1,0 +1,155 @@
+{
+  "project_name": "2. Décomposition des Tâches Atomiques ACP (Goose Agent Context Protocol)",
+  "source_guide": "C:\\Users\\th3th\\HARMONIC-STUDIO\\docs\\architecture_432hz_ambiophonic_delta_phi.md",
+  "parsed_at": "2026-09-19T20:13:14Z",
+  "summary": {
+    "total_phases": 3,
+    "total_tasks": 18
+  },
+  "phases": [
+    {
+      "phase_id": "phase_1",
+      "title": "Phase 1 : Cadrage Acoustique & Invariants Mathématiques",
+      "tasks": [
+        {
+          "task_id": "task_001",
+          "description": "**task_001 : Invariants DSP & Transposition Verdi**",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_002",
+          "description": "Validation du ratio $r = 54/55$ et du fenêtrage Blackman-Harris 4096 points.",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_003",
+          "description": "Livrable : Fonctions pures de pitch-shift et calcul de fondu à puissance constante ($g_1^2 + g_2^2 = 1.0$).",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_004",
+          "description": "**task_002 : Moteur de Résonance Δ-Φ (528 - 432) × 1.618033**",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_005",
+          "description": "Calcul déterministe de la fréquence de battement $\\Delta f = 155.33126\\text{ Hz}$ et modulation quadrature stéréo I/Q.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_006",
+          "description": "Livrable : Contrat d'émission des porteuses et affichage dynamique des fréquences L/R.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        }
+      ]
+    },
+    {
+      "phase_id": "phase_2",
+      "title": "Phase 2 : Intégration UI & Matrice Fréquentielle Frontend",
+      "tasks": [
+        {
+          "task_id": "task_007",
+          "description": "**task_003 : Interface des 4 Cartes Fréquentielles A/B**",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_008",
+          "description": "Mise à jour des cartes : `440 Hz Master Studio`, `432 Hz Ambiophonique 3D`, `Φ 432 Hz Nombre d'Or Ambiophonique`, et `(528 Hz - 432 Hz) × Φ Ambiophonique`.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_009",
+          "description": "Livrable : Composants React 19 avec boutons A/B instantanés et badge dynamique de résonance sacrée.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_010",
+          "description": "**task_004 : Résolution Physique & Serveur RFC 7233**",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_011",
+          "description": "Routage des flux HTTP 206 chunks 512 Ko vers les fichiers physiques réels sous `C:\\Users\\th3th\\Music\\thirty3\\432 hz ambiophonique\\`.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_012",
+          "description": "Livrable : Résolveur `resolvePhysicalTrackFile` certifié 100% sur les 16 combinaisons physiques.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        }
+      ]
+    },
+    {
+      "phase_id": "phase_3",
+      "title": "Phase 3 : Validation Formelle & Déploiement",
+      "tasks": [
+        {
+          "task_id": "task_013",
+          "description": "**task_005 : Suite Exhaustive de Tests Automatisés**",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_014",
+          "description": "Exécution des suites `test-physical-files.ts`, `test-frontend-clicks.ts`, `ai-mcp-audio-suite.test.ts` et `harmonic-studio.test.ts`.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_015",
+          "description": "Livrable : Reçu d'audit certifiant 100% PASS avec 0 régression.",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_016",
+          "description": "**task_006 : Packaging Hybride Berd**",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_017",
+          "description": "Préparation de l'archive de build optimisée pour le déploiement Cloud Run et local.",
+          "status": "pending",
+          "estimated_complexity": "high",
+          "requires_sandbox": true
+        },
+        {
+          "task_id": "task_018",
+          "description": "Livrable : Manifeste de release scellé SHA-256.",
+          "status": "pending",
+          "estimated_complexity": "medium",
+          "requires_sandbox": true
+        }
+      ]
+    }
+  ]
+}
