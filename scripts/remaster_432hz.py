@@ -150,30 +150,14 @@ def sync_to_thirty3_music(filepath: str | Path) -> list[str]:
                     synced_paths.append(str(dest_sub))
                     print(f"  [thirty3-music] Categorized sync: {dest_sub}")
 
-        # Also copy to dedicated '432 hz' shelf folder
+        # Also copy to dedicated '432 hz' shelf folder if present
         hz_dir = DEFAULT_THIRTY3_MUSIC_DIR / "432 hz"
-        hz_dir.mkdir(parents=True, exist_ok=True)
-        dest_hz = hz_dir / src.name
-        shutil.copy2(src, dest_hz)
-        if str(dest_hz) not in synced_paths:
-            synced_paths.append(str(dest_hz))
-        print(f"  [thirty3-music] 432 Hz shelf synced: {dest_hz}")
-
-        # Also copy to dedicated '432 hz ambiophonique' shelf folder (3D soundstage)
-        ambio_dir = DEFAULT_THIRTY3_MUSIC_DIR / "432 hz ambiophonique"
-        ambio_dir.mkdir(parents=True, exist_ok=True)
-        dest_ambio = ambio_dir / src.name
-        shutil.copy2(src, dest_ambio)
-        if str(dest_ambio) not in synced_paths:
-            synced_paths.append(str(dest_ambio))
-        print(f"  [thirty3-music] 432 Hz Ambiophonique shelf synced: {dest_ambio}")
-
-        if "_432Hz_Remastered.mp3" in src.name:
-            ambio_alias = ambio_dir / src.name.replace("_432Hz_Remastered.mp3", "_432Hz_Ambiophonique.mp3")
-            shutil.copy2(src, ambio_alias)
-            if str(ambio_alias) not in synced_paths:
-                synced_paths.append(str(ambio_alias))
-            print(f"  [thirty3-music] 432 Hz Ambiophonique alias synced: {ambio_alias}")
+        if hz_dir.exists() and hz_dir.is_dir():
+            dest_hz = hz_dir / src.name
+            shutil.copy2(src, dest_hz)
+            if str(dest_hz) not in synced_paths:
+                synced_paths.append(str(dest_hz))
+            print(f"  [thirty3-music] 432 Hz shelf synced: {dest_hz}")
     except Exception as exc:
         print(f"  [thirty3-music] Warning: Sync failed for {filepath}: {exc}", file=sys.stderr)
 
@@ -185,22 +169,16 @@ def sync_to_thirty3_music(filepath: str | Path) -> list[str]:
 # ---------------------------------------------------------------------------
 
 def process_remaster_432hz(
-    url: str | None = None,
-    input_file: str | Path | None = None,
-    output_dir: Path = Path("./output"),
+    url: str,
+    output_dir: Path,
     target_lufs: float = DEFAULT_LUFS_TARGET,
     true_peak: float = DEFAULT_TRUE_PEAK,
-    ambiophonic: bool = True,
     cookies: str | None = None,
     keep_temp: bool = False,
     output_json: str | None = None,
 ) -> dict:
     """Execute the full YouTube to 432 Hz Remastered MP3 workflow."""
-    if not url and not input_file:
-        print("ERROR: Either --url or --input-file must be specified.", file=sys.stderr)
-        sys.exit(1)
-
-    ytdlp = shutil.which("yt-dlp") if url else None
+    ytdlp = check_dependency("yt-dlp")
     ffmpeg = check_dependency("ffmpeg")
     check_dependency("ffprobe")
 
@@ -210,79 +188,62 @@ def process_remaster_432hz(
     ensure_dir(temp_dir)
 
     print("=" * 70)
-    print("▶ THIRTY3 REMASTER MP3 (432 HZ NATURAL HARMONIC & AMBIOPHONIC)")
-    print(f"  Source:      {url or input_file}")
-    print(f"  Retuning:    440 Hz -> 432 Hz (Ratio: 0.981818, -31.7666 cents)")
-    print(f"  Ambiophonic: {'Active (3D Holophonic Field + Anti-Fizz EQ)' if ambiophonic else 'Bypass'}")
+    print("▶ YOUTUBE REMASTER MP3 (432 HZ NATURAL HARMONIC)")
+    print(f"  URL:         {url}")
+    print(f"  Retuning:    440 Hz -> 432 Hz (Ratio: 0.981818)")
     print(f"  Target LUFS: {target_lufs} dB")
     print(f"  True Peak:   {true_peak} dBTP")
     print(f"  Bitrate:     {DEFAULT_AUDIO_BITRATE}")
     print("=" * 70)
 
     try:
-        if input_file:
-            print("\n[1/5] Extracting local file metadata...")
-            src_in = Path(input_file).resolve()
-            if not src_in.exists():
-                print(f"ERROR: Local file not found: {src_in}", file=sys.stderr)
-                sys.exit(1)
-            title = src_in.stem
-            uploader = "THIRTY3 Master"
-            duration_s = get_sample_rate(src_in) # fallback
-            webpage_url = str(src_in)
-            safe_title = sanitize_filename(title)
+        # Step 1: Extract Video Metadata via yt-dlp
+        print("\n[1/5] Extracting video metadata...")
+        meta_cmd = [ytdlp, "--dump-single-json", "--no-playlist", "--no-warnings"]
+        if cookies:
+            meta_cmd.extend(["--cookies", cookies])
+        meta_cmd.append(url)
 
-            print("\n[2/5] Preparing source PCM WAV...")
-            source_wav = temp_dir / "source.wav"
-            run_cmd([ffmpeg, "-y", "-i", str(src_in), "-vn", "-c:a", "pcm_s16le", str(source_wav)])
-        else:
-            # Step 1: Extract Video Metadata via yt-dlp
-            print("\n[1/5] Extracting video metadata...")
-            meta_cmd = [ytdlp, "--dump-single-json", "--no-playlist", "--no-warnings"]
-            if cookies:
-                meta_cmd.extend(["--cookies", cookies])
-            meta_cmd.append(url)
+        meta_res = run_cmd(meta_cmd)
+        video_meta = json.loads(meta_res.stdout)
 
-            meta_res = run_cmd(meta_cmd)
-            video_meta = json.loads(meta_res.stdout)
+        title = video_meta.get("title", "Remastered Track")
+        uploader = video_meta.get("uploader") or video_meta.get("channel") or "Unknown Artist"
+        duration_s = video_meta.get("duration", 0)
+        webpage_url = video_meta.get("webpage_url", url)
 
-            title = video_meta.get("title", "Remastered Track")
-            uploader = video_meta.get("uploader") or video_meta.get("channel") or "Unknown Artist"
-            duration_s = video_meta.get("duration", 0)
-            webpage_url = video_meta.get("webpage_url", url)
+        safe_title = sanitize_filename(f"{uploader} - {title}" if uploader and uploader not in title else title)
+        print(f"  Title:    {title}")
+        print(f"  Artist:   {uploader}")
+        print(f"  Duration: {int(duration_s // 60)}:{int(duration_s % 60):02d}")
 
-            safe_title = sanitize_filename(f"{uploader} - {title}" if uploader and uploader not in title else title)
-            print(f"  Title:    {title}")
-            print(f"  Artist:   {uploader}")
-            print(f"  Duration: {int(duration_s // 60)}:{int(duration_s % 60):02d}")
+        # Step 2: Download raw audio stream (WAV) & thumbnail
+        print("\n[2/5] Downloading raw uncompressed audio & artwork...")
+        raw_audio_tmpl = str(temp_dir / "source.%(ext)s")
+        dl_cmd = [
+            ytdlp,
+            "-x",
+            "--audio-format", "wav",
+            "--audio-quality", "0",
+            "--write-thumbnail",
+            "--convert-thumbnails", "jpg",
+            "-o", raw_audio_tmpl,
+            "--no-playlist",
+            "--restrict-filenames",
+            "--no-overwrites",
+        ]
+        if cookies:
+            dl_cmd.extend(["--cookies", cookies])
+        dl_cmd.append(url)
 
-            # Step 2: Download raw audio stream (WAV) & thumbnail
-            print("\n[2/5] Downloading raw uncompressed audio & artwork...")
-            raw_audio_tmpl = str(temp_dir / "source.%(ext)s")
-            dl_cmd = [
-                ytdlp,
-                "-x",
-                "--audio-format", "wav",
-                "--audio-quality", "0",
-                "--write-thumbnail",
-                "--convert-thumbnails", "jpg",
-                "-o", raw_audio_tmpl,
-                "--no-playlist",
-                "--restrict-filenames",
-                "--no-overwrites",
-            ]
-            if cookies:
-                dl_cmd.extend(["--cookies", cookies])
-            dl_cmd.append(url)
+        run_cmd(dl_cmd, capture=False)
 
-            run_cmd(dl_cmd, capture=False)
-
-            # Locate downloaded wav file
-            wav_files = list(temp_dir.glob("source*.wav"))
-            if not wav_files:
-                print("ERROR: Downloaded WAV audio stream not found.", file=sys.stderr)
-                sys.exit(1)
-            source_wav = wav_files[0]
+        # Locate downloaded wav file
+        wav_files = list(temp_dir.glob("source*.wav"))
+        if not wav_files:
+            print("ERROR: Downloaded WAV audio stream not found.", file=sys.stderr)
+            sys.exit(1)
+        source_wav = wav_files[0]
 
         # Step 3: Format cover art (crop to square JPEG for universal compatibility)
         cover_path = None
@@ -463,13 +424,10 @@ def build_parser() -> argparse.ArgumentParser:
         prog="remaster_432hz",
         description="Transform a YouTube link into a 432 Hz studio-grade remastered MP3 (320 kbps).",
     )
-    parser.add_argument("--url", default=None, help="YouTube video URL to download, retune to 432 Hz, and remaster")
-    parser.add_argument("--input-file", default=None, help="Local audio track file path (WAV, FLAC, MP3) instead of YouTube URL")
+    parser.add_argument("--url", required=True, help="YouTube video URL to download, retune to 432 Hz, and remaster")
     parser.add_argument("--output-dir", default="./output", help="Directory where remastered MP3 is saved (default: ./output)")
     parser.add_argument("--target-lufs", type=float, default=DEFAULT_LUFS_TARGET, help="Target loudness in LUFS (default: -14)")
     parser.add_argument("--true-peak", type=float, default=DEFAULT_TRUE_PEAK, help="Target True Peak in dBTP (default: -1.0)")
-    parser.add_argument("--ambiophonic", action="store_true", default=True, help="Enable 3D Ambiophonic spatial widening & anti-fizz EQ (default: True)")
-    parser.add_argument("--no-ambiophonic", action="store_false", dest="ambiophonic", help="Disable Ambiophonic widening")
     parser.add_argument("--cookies", default=None, help="Optional path to cookies.txt for age/auth restricted videos")
     parser.add_argument("--keep-temp", action="store_true", help="Keep temporary WAV and thumbnail files")
     parser.add_argument("--output", default=None, help="Path to write the execution result manifest JSON")
@@ -481,17 +439,12 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    if not args.url and not args.input_file:
-        parser.error("Either --url or --input-file must be provided.")
-
     out_dir = Path(args.output_dir).resolve()
     process_remaster_432hz(
         url=args.url,
-        input_file=args.input_file,
         output_dir=out_dir,
         target_lufs=args.target_lufs,
         true_peak=args.true_peak,
-        ambiophonic=args.ambiophonic,
         cookies=args.cookies,
         keep_temp=args.keep_temp,
         output_json=args.output,
