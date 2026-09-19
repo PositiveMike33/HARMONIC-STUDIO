@@ -173,6 +173,11 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                       <span className="text-neutral-600">•</span>
                       <span className="text-[#00FF9D]/80">EBU R128</span>
                     </p>
+                    {track.artistBio && (
+                      <p className="text-[11px] text-neutral-400 font-sans line-clamp-1 mt-0.5">
+                        {track.artistBio}
+                      </p>
+                    )}
                   </div>
                 </div>
 

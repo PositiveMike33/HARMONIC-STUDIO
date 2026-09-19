@@ -30,6 +30,7 @@ export interface Track {
   id: string;
   title: string;
   artist: string;
+  artistBio?: string;
   durationSeconds: number;
   pitchShiftCents: number;
   lufs: number;

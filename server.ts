@@ -41,6 +41,7 @@ export interface CertifiedTrack {
   id: string;
   title: string;
   artist: string;
+  artistBio?: string;
   durationSeconds: number;
   pitchShiftCents: number;
   lufs: number;
@@ -115,6 +116,7 @@ export const CERTIFIED_TRACKS_DB: CertifiedTrack[] = [
     id: 'the-soldier-4-mike-solo',
     title: 'The Soldier 4',
     artist: 'Mike Shinoda solo Linkin Park',
+    artistBio: 'Co-fondateur, producteur et multi-instrumentiste de Linkin Park, Mike Shinoda explore dans cette version solo studio des textures acoustiques hybrides et des arrangements intimistes sublimés en accordage naturel 432 Hz et résonance sacrée Phi.',
     durationSeconds: 316,
     pitchShiftCents: -31.7667,
     lufs: -14.0,

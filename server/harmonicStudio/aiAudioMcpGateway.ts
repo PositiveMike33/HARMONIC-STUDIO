@@ -69,12 +69,8 @@ export async function executeMcpTool(
   }
 
   return new Promise((resolve) => {
-    const isWin = process.platform === 'win32';
-    const hasUv = isWin
-      ? true
-      : (fs.existsSync('/root/.cargo/bin/uv') || fs.existsSync('/usr/local/bin/uv') || fs.existsSync('/usr/bin/uv'));
-    const defaultPy = isWin ? 'python' : 'python3';
-    const execCmd = hasUv ? 'uv' : (process.env.PYTHON_BIN || defaultPy);
+    const hasUv = fs.existsSync('/root/.cargo/bin/uv') || fs.existsSync('/usr/local/bin/uv') || fs.existsSync('/usr/bin/uv');
+    const execCmd = hasUv ? 'uv' : (process.env.PYTHON_BIN || 'python3');
     const execArgs = hasUv ? ['run', serverCfg.scriptPath] : [serverCfg.scriptPath];
 
     const child = spawn(execCmd, execArgs, {

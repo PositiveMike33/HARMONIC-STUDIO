@@ -163,6 +163,7 @@ export const INITIAL_TRACKS: Track[] = [
     id: 'the-soldier-4',
     title: 'The Soldier 4',
     artist: 'Mike Shinoda solo Linkin Park',
+    artistBio: 'Co-fondateur et multi-instrumentiste de Linkin Park, Mike Shinoda explore dans cette version solo studio des textures acoustiques hybrides et des arrangements intimes en 432 Hz.',
     durationSeconds: 218,
     pitchShiftCents: -31.76,
     lufs: -14.0,
