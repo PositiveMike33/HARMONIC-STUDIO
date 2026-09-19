@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test, describe } from 'node:test';
 import { app, resolvePhysicalTrackFile, CERTIFIED_TRACKS_DB } from '../server';
 import { useAudioStore } from '../src/client/store/useAudioStore';
+import { getShareUrls } from '../src/components/SocialShareBar';
 import { AddressInfo } from 'net';
 import fs from 'fs';
 
@@ -147,6 +148,32 @@ describe('FRONTEND EXHAUSTIVE UI CLICKS & AUDIOTRACK RESOLUTION TEST', () => {
       assert.ok(iframeSnippet.includes('432_PHI'));
     } finally {
       await new Promise<void>((resolve) => server.close(() => resolve()));
+    }
+  });
+
+  test('5. Test des boutons de partage social (Twitter/X, Facebook) dans le widget avec fréquence active', () => {
+    const testCases = [
+      { track: 'Bones For The Crows', artist: 'Nickelback', id: 'bones-for-the-crows', freq: '432_PHI' },
+      { track: 'Splintered Self', artist: 'VEL94EV', id: 'splintered-self', freq: '432_NATURAL' },
+      { track: 'Counting Stars', artist: 'OneRepublic', id: 'counting-stars', freq: '432_528_BINAURAL' },
+      { track: 'The Soldier 4', artist: 'Mike Solo', id: 'the-soldier-4', freq: '440_BYPASS' },
+    ];
+
+    for (const tc of testCases) {
+      const shareData = getShareUrls(tc.track, tc.artist, tc.id, tc.freq);
+
+      // Vérification du lien direct avec fréquence active
+      assert.ok(shareData.shareUrl.includes(tc.id), `shareUrl doit inclure l'id ${tc.id}`);
+      assert.ok(shareData.shareUrl.includes(tc.freq), `shareUrl doit inclure la fréquence active ${tc.freq}`);
+
+      // Vérification du bouton Twitter / X
+      assert.ok(shareData.twitterUrl.startsWith('https://twitter.com/intent/tweet'), 'Le lien Twitter doit utiliser intent/tweet');
+      assert.ok(shareData.twitterUrl.includes(encodeURIComponent(shareData.shareUrl)), 'Le tweet doit contenir le lien avec fréquence active');
+      assert.ok(shareData.twitterUrl.includes(encodeURIComponent(tc.track)), 'Le tweet doit mentionner le nom de la piste');
+
+      // Vérification du bouton Facebook
+      assert.ok(shareData.facebookUrl.startsWith('https://www.facebook.com/sharer/sharer.php'), 'Le lien Facebook doit utiliser le sharer officiel');
+      assert.ok(shareData.facebookUrl.includes(encodeURIComponent(shareData.shareUrl)), 'Facebook doit recevoir l URL exacte de la piste avec la fréquence active');
     }
   });
 });

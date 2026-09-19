@@ -31,7 +31,8 @@ import {
 } from 'lucide-react';
 import { HarmonicPlayer } from './components/HarmonicPlayer';
 import { TrackCatalogue } from './components/TrackCatalogue';
-import { AiAudioMasteringSuiteModal } from './components/AiAudioMasteringSuiteModal';
+import { SocialShareBar } from './components/SocialShareBar';
+import { EmbeddedPlayerWidget } from './components/EmbeddedPlayerWidget';
 
 // ============================================================================
 // TYPES ET DÉFINITIONS SOUVERAINES
@@ -134,6 +135,9 @@ const CATALOGUE: TrackData[] = [
 ];
 
 export default function App() {
+  // Détection du mode IFrame / Embed dédié
+  const isEmbedView = typeof window !== 'undefined' && window.location.pathname.startsWith('/embed');
+
   // État de lecture Audio
   const [selectedTrack, setSelectedTrack] = useState<TrackData>(CATALOGUE[0]);
   const [freqMode, setFreqMode] = useState<DSPFrequencyMode>('432_NATURAL');
@@ -146,7 +150,6 @@ export default function App() {
   const [showStripeModal, setShowStripeModal] = useState(false);
   const [showCreatorModal, setShowCreatorModal] = useState(false);
   const [showWidgetModal, setShowWidgetModal] = useState(false);
-  const [showAiSuiteModal, setShowAiSuiteModal] = useState(false);
   const [purchaseSuccessBanner, setPurchaseSuccessBanner] = useState<string | null>(null);
 
   // Références Web Audio API
@@ -156,6 +159,27 @@ export default function App() {
   const gainNodeRef = useRef<GainNode | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isSwitchingRef = useRef(false);
+
+  // Si on est en mode Embed IFrame autonome
+  if (isEmbedView) {
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const embedTrackId = pathParts[1] || selectedTrack.id;
+    const urlParams = new URLSearchParams(window.location.search);
+    const embedFreq = (urlParams.get('freq') as DSPFrequencyMode) || freqMode;
+
+    return (
+      <div className="min-h-screen bg-[#070B0D] p-2 sm:p-4 flex items-center justify-center">
+        <EmbeddedPlayerWidget
+          trackId={embedTrackId}
+          initialFreq={embedFreq}
+          className="w-full max-w-2xl"
+          onOpenFullApp={() => {
+            window.open(window.location.origin, '_blank');
+          }}
+        />
+      </div>
+    );
+  }
 
   // Construction de l'URL du stream HTTP 206
   const currentStreamUrl = useMemo(() => {
@@ -367,15 +391,6 @@ export default function App() {
           >
             <ShieldCheck className="w-4 h-4" />
             <span>STUDIO CRÉATEUR (85/15)</span>
-          </button>
-
-          <button
-            id="btn-open-mcp-ai-suite"
-            onClick={() => setShowAiSuiteModal(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/50 text-emerald-300 text-xs px-4 py-2 rounded font-bold transition cursor-pointer shadow-[0_0_15px_rgba(0,255,157,0.15)]"
-          >
-            <Sparkles className="w-4 h-4 text-emerald-400" />
-            <span>STUDIO IA PRO (MCP)</span>
           </button>
         </div>
       </header>
@@ -828,15 +843,15 @@ export default function App() {
       )}
 
       {/* ==================================================================== */}
-      {/* MODALE 3 : GÉNÉRATEUR DE WIDGET EMBED */}
+      {/* MODALE 3 : GÉNÉRATEUR DE WIDGET EMBED & PARTAGE SOCIAL (X / FACEBOOK) */}
       {/* ==================================================================== */}
       {showWidgetModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0F171B] border border-white/20 rounded-xl max-w-lg w-full p-6 text-sm">
+          <div className="bg-[#0F171B] border border-white/20 rounded-xl max-w-xl w-full p-6 text-sm max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-2">
                 <Code2 className="w-5 h-5 text-[#00FF9D]" />
-                <h3 className="text-base font-bold text-white">Intégration du Lecteur Embed</h3>
+                <h3 className="text-base font-bold text-white">Intégration du Lecteur Embed & Partage Réseaux</h3>
               </div>
               <button
                 onClick={() => setShowWidgetModal(false)}
@@ -846,9 +861,41 @@ export default function App() {
               </button>
             </div>
 
-            <p className="text-xs text-gray-400 mb-3">
-              Copiez ce snippet HTML pour intégrer le lecteur audio 432 Hz directement sur vos
-              applications web, sites de bien-être ou plateformes partenaires :
+            {/* 1. Boutons de partage direct Twitter/X et Facebook */}
+            <div className="bg-black/50 border border-white/10 rounded-xl p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-gray-300 uppercase tracking-wider">
+                  Partage Social Direct
+                </span>
+                <span className="text-[10px] text-[#00FF9D] font-bold bg-[#00FF9D]/10 px-2 py-0.5 rounded border border-[#00FF9D]/30">
+                  {freqMode}
+                </span>
+              </div>
+              <p className="text-xs text-gray-400 mb-3">
+                Partagez directement la piste <strong className="text-white">{selectedTrack.title}</strong> avec sa fréquence active sur vos réseaux :
+              </p>
+              <SocialShareBar
+                trackTitle={selectedTrack.title}
+                trackArtist={selectedTrack.artist}
+                trackId={selectedTrack.id}
+                freqMode={freqMode}
+              />
+            </div>
+
+            {/* 2. Aperçu interactif du Widget avec boutons sociaux intégrés */}
+            <div className="mb-4">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
+                Aperçu du Widget Intégré (Boutons Twitter & Facebook inclus)
+              </span>
+              <EmbeddedPlayerWidget
+                trackId={selectedTrack.id}
+                initialFreq={freqMode}
+              />
+            </div>
+
+            {/* 3. Code Iframe pour intégration web */}
+            <p className="text-xs text-gray-400 mb-2">
+              Code HTML d'intégration sécurisé (IFrame HTTP 206) :
             </p>
 
             <div className="bg-black/80 border border-white/10 p-3 rounded text-[11px] font-mono text-[#00FF9D] overflow-x-auto mb-4">
@@ -869,14 +916,6 @@ export default function App() {
           </div>
         </div>
       )}
-
-      {/* ==================================================================== */}
-      {/* MODALE 4 : SUITE IA PRO MCP (YuE, BS-RoFormer, ACE-Step 1.5) */}
-      {/* ==================================================================== */}
-      <AiAudioMasteringSuiteModal
-        isOpen={showAiSuiteModal}
-        onClose={() => setShowAiSuiteModal(false)}
-      />
     </div>
   );
 }

@@ -16,7 +16,6 @@ import { createServer as createViteServer } from 'vite';
 import crypto from 'crypto';
 import { billingRouter, billingStore } from './server/billing';
 import { harmonicRouter, mediaRouter } from './server/harmonicStudio/routes';
-import { executeMcpTool, getAvailableAudioMcpTools } from './server/harmonicStudio/aiAudioMcpGateway';
 
 const PORT = Number(process.env.PORT) || 3033;
 const app = express();
@@ -141,12 +140,15 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
   const mode = tuning.toLowerCase();
 
   try {
-    const hasPhysicalDir = fs.existsSync(MUSIC_BASE);
     const checkFile = (candidatePath: string) => {
-      if (hasPhysicalDir) {
-        return fs.existsSync(candidatePath) ? candidatePath : null;
+      if (fs.existsSync(candidatePath)) return candidatePath;
+      const basename = path.basename(candidatePath);
+      const publicBase = path.join(process.cwd(), 'public', 'audio');
+      for (const sub of ['splintered-self', 'bones-for-the-crows', 'counting-stars', 'the-soldier-4']) {
+        const p = path.join(publicBase, sub, basename);
+        if (fs.existsSync(p)) return p;
       }
-      return candidatePath;
+      return null;
     };
 
     // 1. VEL94EV - Splintered Self
@@ -167,19 +169,10 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
         if (found) return found;
       }
       if (mode === '432' || mode === '432hz' || mode.includes('natural')) {
-        const p1 = path.join(MUSIC_BASE, '432 hz ambiophonique', 'INSTRUMENTAL', 'VEL94EV - Topic - Splintered Self_432Hz_Ambiophonique.mp3');
-        const f1 = checkFile(p1);
-        if (f1) return f1;
-        const p2 = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_432Hz_Remastered.mp3');
-        const f2 = checkFile(p2);
-        if (f2) return f2;
-        const p3 = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_Phi_432Hz_528Hz_Binaural_Remastered.mp3');
-        const f3 = checkFile(p3);
-        if (f3) return f3;
+        const p = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_432Hz_Remastered.mp3');
+        const found = checkFile(p);
+        if (found) return found;
       }
-      const pBinauralFallback = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_Phi_432Hz_528Hz_Binaural_Remastered.mp3');
-      const fBin = checkFile(pBinauralFallback);
-      if (fBin) return fBin;
       const p = path.join(MUSIC_BASE, 'VEL94EV', 'VEL94EV - Topic - Splintered Self_Phi_432Hz_Remastered.mp3');
       const found = checkFile(p);
       if (found) return found;
@@ -663,44 +656,6 @@ app.post('/api/acp/rpc', (req: Request, res: Response) => {
     id: id || 1,
     result: { status: 'ok', methodReceived: method, params: params || {} },
   });
-});
-
-// 5.1 Passerelle Serveurs MCP Audio Pro (YuE, BS-RoFormer, ACE-Step 1.5)
-app.get('/api/mcp/tools', (_req: Request, res: Response) => {
-  res.json({
-    status: 'success',
-    count: getAvailableAudioMcpTools().length,
-    tools: getAvailableAudioMcpTools(),
-  });
-});
-
-app.post('/api/mcp/call', async (req: Request, res: Response) => {
-  const { server, tool, arguments: args } = req.body || {};
-  if (!server || !tool) {
-    return res.status(400).json({ status: 'error', error: 'Paramètres server et tool requis' });
-  }
-  const result = await executeMcpTool(server, tool, args || {});
-  res.status(result.status === 'success' ? 200 : 500).json(result);
-});
-
-app.post('/api/mcp/yue/generate', async (req: Request, res: Response) => {
-  const result = await executeMcpTool('mcp-yue', 'yue_generate_full_song', req.body || {});
-  res.status(result.status === 'success' ? 200 : 500).json(result);
-});
-
-app.post('/api/mcp/roformer/separate', async (req: Request, res: Response) => {
-  const result = await executeMcpTool('mcp-bs-roformer', 'roformer_separate_stems', req.body || {});
-  res.status(result.status === 'success' ? 200 : 500).json(result);
-});
-
-app.post('/api/mcp/roformer/master', async (req: Request, res: Response) => {
-  const result = await executeMcpTool('mcp-bs-roformer', 'roformer_stem_master', req.body || {});
-  res.status(result.status === 'success' ? 200 : 500).json(result);
-});
-
-app.post('/api/mcp/acestep/compose', async (req: Request, res: Response) => {
-  const result = await executeMcpTool('mcp-ace-step', 'acestep_steerable_composition', req.body || {});
-  res.status(result.status === 'success' ? 200 : 500).json(result);
 });
 
 // 6. Démarrage du serveur et intégration Vite SPA

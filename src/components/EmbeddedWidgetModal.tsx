@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { X, Code2, Copy, Check, ExternalLink } from 'lucide-react';
+import { X, Code2, Copy, Check } from 'lucide-react';
 import { useAudioStore } from '../client/store/useAudioStore';
+import { SocialShareBar } from './SocialShareBar';
+import { EmbeddedPlayerWidget } from './EmbeddedPlayerWidget';
 
 interface EmbeddedWidgetModalProps {
   isOpen: boolean;
@@ -8,13 +10,14 @@ interface EmbeddedWidgetModalProps {
 }
 
 export const EmbeddedWidgetModal: React.FC<EmbeddedWidgetModalProps> = ({ isOpen, onClose }) => {
-  const { currentTrack } = useAudioStore();
+  const { currentTrack, activeFrequency } = useAudioStore();
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://harmonic-studio-plateforme-de-streaming-432hz.ai.studio';
   const embedCode = `<iframe 
-  src="${window.location.origin}/embed?track=${currentTrack.id}&frequency=phi" 
+  src="${origin}/embed/${currentTrack.id}?freq=${activeFrequency}" 
   width="100%" 
   height="220" 
   frameborder="0" 
@@ -33,7 +36,7 @@ export const EmbeddedWidgetModal: React.FC<EmbeddedWidgetModalProps> = ({ isOpen
       id="embedded-widget-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150"
     >
-      <div className="bg-[#0B1313] border border-[#00FF9D]/40 rounded-2xl w-full max-w-xl shadow-[0_0_50px_rgba(0,255,157,0.15)] flex flex-col">
+      <div className="bg-[#0B1313] border border-[#00FF9D]/40 rounded-2xl w-full max-w-xl shadow-[0_0_50px_rgba(0,255,157,0.15)] flex flex-col max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-neutral-800">
           <div className="flex items-center gap-2.5">
@@ -42,10 +45,10 @@ export const EmbeddedWidgetModal: React.FC<EmbeddedWidgetModalProps> = ({ isOpen
             </div>
             <div>
               <h2 className="text-lg font-bold text-white font-mono">
-                Widget Embarqué (Embeddable Player)
+                Widget Embarqué 432 Hz
               </h2>
               <p className="text-xs text-neutral-400 font-sans">
-                Intégrez le lecteur 432Hz / Φ sans coupure sur vos sites web et portfolios.
+                Partagez directement vos morceaux avec fréquence active sur les réseaux sociaux.
               </p>
             </div>
           </div>
@@ -59,6 +62,23 @@ export const EmbeddedWidgetModal: React.FC<EmbeddedWidgetModalProps> = ({ isOpen
 
         {/* Content */}
         <div className="p-5 space-y-4">
+          {/* Partage Social Direct (Twitter / X et Facebook) */}
+          <div className="bg-black/50 border border-white/10 rounded-xl p-3.5 space-y-2">
+            <label className="text-xs font-mono text-neutral-300 font-bold block">
+              Partage Réseaux Sociaux (Piste active & Fréquence)
+            </label>
+            <p className="text-[11px] text-gray-400">
+              Partagez instantanément le lien vers <strong className="text-white">{currentTrack.title}</strong> avec la matrice active :
+            </p>
+            <SocialShareBar
+              trackTitle={currentTrack.title}
+              trackArtist={currentTrack.artist}
+              trackId={currentTrack.id}
+              freqMode={activeFrequency}
+            />
+          </div>
+
+          {/* Code Iframe */}
           <div className="space-y-1.5">
             <label className="text-xs font-mono text-neutral-300 block">
               Code HTML d'intégration sécurisé (IFrame HTTP 206)
@@ -77,25 +97,15 @@ export const EmbeddedWidgetModal: React.FC<EmbeddedWidgetModalProps> = ({ isOpen
             </div>
           </div>
 
-          {/* Mini Preview */}
-          <div className="border border-neutral-800 rounded-xl p-3.5 bg-[#090F12] space-y-2">
+          {/* Mini Preview Interactive avec boutons de partage intégrés */}
+          <div className="space-y-2">
             <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-wide block">
-              Aperçu en direct du Widget
+              Aperçu interactif du Widget
             </span>
-            <div className="bg-[#0B1516] border border-[#00FF9D]/40 rounded-lg p-3 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded bg-gradient-to-br from-[#F59E0B] to-[#D97706] flex items-center justify-center font-serif text-black font-bold">
-                  Φ
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-white font-mono">{currentTrack.title}</div>
-                  <div className="text-[10px] text-neutral-400">432Hz • Onde Φ • 320k</div>
-                </div>
-              </div>
-              <span className="text-[10px] font-mono text-[#00FF9D] bg-[#00FF9D]/10 px-2 py-0.5 rounded border border-[#00FF9D]/30">
-                Range 206 Live
-              </span>
-            </div>
+            <EmbeddedPlayerWidget
+              trackId={currentTrack.id}
+              initialFreq={activeFrequency}
+            />
           </div>
         </div>
       </div>
