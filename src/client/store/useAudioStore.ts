@@ -161,8 +161,8 @@ export const INITIAL_TRACKS: Track[] = [
   },
   {
     id: 'the-soldier-4',
-    title: 'The Soldier 4 (Linkin Park Tribute)',
-    artist: 'Mike Solo / Michael Gauthier',
+    title: 'The Soldier 4',
+    artist: 'Mike Shinoda solo Linkin Park',
     durationSeconds: 218,
     pitchShiftCents: -31.76,
     lufs: -14.0,

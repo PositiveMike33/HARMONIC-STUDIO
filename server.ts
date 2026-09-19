@@ -113,8 +113,8 @@ export const CERTIFIED_TRACKS_DB: CertifiedTrack[] = [
   },
   {
     id: 'the-soldier-4-mike-solo',
-    title: 'The Soldier 4 - Mike Solo/WAK/STB/RTN/LFY (Studio Version) Linkin Park',
-    artist: 'The Soldier',
+    title: 'The Soldier 4',
+    artist: 'Mike Shinoda solo Linkin Park',
     durationSeconds: 316,
     pitchShiftCents: -31.7667,
     lufs: -14.0,

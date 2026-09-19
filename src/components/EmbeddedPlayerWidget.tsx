@@ -45,8 +45,8 @@ const DEFAULT_TRACKS: Record<string, TrackMeta> = {
   },
   'the-soldier-4': {
     id: 'the-soldier-4',
-    title: 'The Soldier 4 (Linkin Park Tribute)',
-    artist: 'Mike Solo / Michael Gauthier',
+    title: 'The Soldier 4',
+    artist: 'Mike Shinoda solo Linkin Park',
     fundamentalHz: 293.66,
     musicalKey: 'D Minor',
     durationSeconds: 218,
