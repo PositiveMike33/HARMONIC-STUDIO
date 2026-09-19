@@ -179,6 +179,14 @@ def sync_to_thirty3_music(filepath: str | Path) -> list[str]:
             synced_paths.append(str(dest_shelf))
         print(f"  [thirty3-music] Phi 432 Hz shelf synced: {dest_shelf}")
 
+        # 4. Dedicated 432 Hz Ambiophonique Shelf
+        ambio_dir = DEFAULT_THIRTY3_MUSIC_DIR / "432 hz ambiophonique"
+        ambio_dir.mkdir(parents=True, exist_ok=True)
+        dest_ambio = ambio_dir / src.name
+        shutil.copy2(src, dest_ambio)
+        if str(dest_ambio) not in synced_paths:
+            synced_paths.append(str(dest_ambio))
+        print(f"  [thirty3-music] 432 Hz Ambiophonique shelf synced: {dest_ambio}")
     except Exception as exc:
         print(f"  [thirty3-music] Warning: Sync failed for {filepath}: {exc}", file=sys.stderr)
 
