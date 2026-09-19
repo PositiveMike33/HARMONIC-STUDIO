@@ -142,6 +142,21 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
 
   try {
     const hasPhysicalDir = fs.existsSync(MUSIC_BASE);
+    const simpleTrackId = normId.includes('splintered') || normId.includes('vel94ev')
+      ? 'splintered-self'
+      : (normId.includes('bones') || normId.includes('nickelback')
+        ? 'bones-for-the-crows'
+        : (normId.includes('counting') || normId.includes('onerepublic')
+          ? 'counting-stars'
+          : 'the-soldier-4'));
+    const simpleMode = (mode.includes('528') || mode.includes('binaural'))
+      ? 'binaural'
+      : (mode.includes('phi')
+        ? 'phi'
+        : ((mode === '432' || mode === '432hz' || mode.includes('natural'))
+          ? '432'
+          : '440'));
+
     const checkFile = (candidatePath: string) => {
       if (fs.existsSync(candidatePath)) return candidatePath;
       const basename = path.basename(candidatePath);
@@ -150,6 +165,8 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
         const p = path.join(publicBase, sub, basename);
         if (fs.existsSync(p)) return p;
       }
+      const simpleCandidate = path.join(publicBase, simpleTrackId, `${simpleMode}.mp3`);
+      if (fs.existsSync(simpleCandidate)) return simpleCandidate;
       if (!hasPhysicalDir) return candidatePath;
       return null;
     };
@@ -288,20 +305,6 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
 
     // Secours statique sous public/audio
     const publicBase = path.join(process.cwd(), 'public', 'audio');
-    const simpleTrackId = normId.includes('splintered') || normId.includes('vel94ev')
-      ? 'splintered-self'
-      : (normId.includes('bones') || normId.includes('nickelback')
-        ? 'bones-for-the-crows'
-        : (normId.includes('counting') || normId.includes('onerepublic')
-          ? 'counting-stars'
-          : 'the-soldier-4'));
-    const simpleMode = (mode.includes('528') || mode.includes('binaural'))
-      ? 'binaural'
-      : (mode.includes('phi')
-        ? 'phi'
-        : ((mode === '432' || mode === '432hz' || mode.includes('natural'))
-          ? '432'
-          : '440'));
     const publicCandidate = path.join(publicBase, simpleTrackId, `${simpleMode}.mp3`);
     if (fs.existsSync(publicCandidate)) return publicCandidate;
   } catch {
