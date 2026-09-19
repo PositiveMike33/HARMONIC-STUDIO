@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { HarmonicPlayer } from './components/HarmonicPlayer';
 import { TrackCatalogue } from './components/TrackCatalogue';
+import { AiAudioMasteringSuiteModal } from './components/AiAudioMasteringSuiteModal';
 import { SocialShareBar } from './components/SocialShareBar';
 import { EmbeddedPlayerWidget } from './components/EmbeddedPlayerWidget';
 
@@ -150,6 +151,7 @@ export default function App() {
   const [showStripeModal, setShowStripeModal] = useState(false);
   const [showCreatorModal, setShowCreatorModal] = useState(false);
   const [showWidgetModal, setShowWidgetModal] = useState(false);
+  const [showAiSuiteModal, setShowAiSuiteModal] = useState(false);
   const [purchaseSuccessBanner, setPurchaseSuccessBanner] = useState<string | null>(null);
 
   // Références Web Audio API
@@ -391,6 +393,15 @@ export default function App() {
           >
             <ShieldCheck className="w-4 h-4" />
             <span>STUDIO CRÉATEUR (85/15)</span>
+          </button>
+
+          <button
+            id="btn-open-mcp-ai-suite"
+            onClick={() => setShowAiSuiteModal(true)}
+            className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/50 text-emerald-300 text-xs px-4 py-2 rounded font-bold transition cursor-pointer shadow-[0_0_15px_rgba(0,255,157,0.15)]"
+          >
+            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <span>STUDIO IA PRO (MCP)</span>
           </button>
         </div>
       </header>
@@ -916,6 +927,14 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* ==================================================================== */}
+      {/* MODALE 4 : SUITE IA PRO MCP (YuE, BS-RoFormer, ACE-Step 1.5) */}
+      {/* ==================================================================== */}
+      <AiAudioMasteringSuiteModal
+        isOpen={showAiSuiteModal}
+        onClose={() => setShowAiSuiteModal(false)}
+      />
     </div>
   );
 }

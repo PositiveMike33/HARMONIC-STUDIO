@@ -1,0 +1,6 @@
+{
+  "name": "Harmonic Studio & Plateforme de Streaming 432Hz",
+  "description": "Plateforme de streaming audio et remastérisation acoustique 432Hz temps réel avec ratio Phi, EBU R128 et streaming HTTP 206.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
