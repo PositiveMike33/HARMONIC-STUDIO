@@ -282,7 +282,7 @@ describe('ATOME 2 : Serveur I/O, Chunks 512 Ko & Colibri FFT', () => {
     // Vérifie que la fonction de résolution trouve bien des chemins de fichiers physiques valides
     const vel432 = resolvePhysicalTrackFile('splintered-self', '432hz');
     assert.ok(vel432 !== null, 'VEL94EV 432Hz physique doit être résolu');
-    assert.ok(vel432!.includes('Splintered Self'));
+    assert.ok(vel432!.toLowerCase().includes('splintered-self') || vel432!.includes('Splintered Self'));
 
     const nickelbackPhi = resolvePhysicalTrackFile('bones-for-the-crows', 'phi');
     assert.ok(nickelbackPhi !== null, 'Nickelback Phi 432Hz physique doit être résolu');

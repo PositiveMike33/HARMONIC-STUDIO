@@ -69,7 +69,11 @@ export async function executeMcpTool(
   }
 
   return new Promise((resolve) => {
-    const child = spawn('uv', ['run', serverCfg.scriptPath], {
+    const hasUv = fs.existsSync('/root/.cargo/bin/uv') || fs.existsSync('/usr/local/bin/uv') || fs.existsSync('/usr/bin/uv');
+    const execCmd = hasUv ? 'uv' : (process.env.PYTHON_BIN || 'python3');
+    const execArgs = hasUv ? ['run', serverCfg.scriptPath] : [serverCfg.scriptPath];
+
+    const child = spawn(execCmd, execArgs, {
       cwd: process.cwd(),
       env: { ...process.env, PYTHONIOENCODING: 'utf-8' },
       stdio: ['pipe', 'pipe', 'pipe']
