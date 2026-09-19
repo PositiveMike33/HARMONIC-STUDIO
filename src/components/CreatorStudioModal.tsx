@@ -109,11 +109,11 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
       id="creator-studio-modal"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150"
     >
-      <div className="bg-[#0B1313] border border-[#00FF9D]/40 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(0,255,157,0.15)] flex flex-col">
+      <div className="bg-[#141210] border border-amber-950/40 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col">
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-5 border-b border-neutral-800">
+        <div className="flex items-center justify-between p-5 border-b border-stone-800">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#00FF9D]/10 border border-[#00FF9D]/30 flex items-center justify-center text-[#00FF9D]">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400">
               <DollarSign className="w-4 h-4" />
             </div>
             <div>
@@ -137,9 +137,9 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
         <div className="p-5 space-y-6">
           {/* Revenue and Splitting Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="bg-[#090F12] border border-[#00FF9D]/30 rounded-xl p-3.5 space-y-1">
+            <div className="bg-[#100E0C] border border-stone-800 rounded-xl p-3.5 space-y-1">
               <span className="text-[11px] text-neutral-400 font-mono">Ventes Réalisées (0.99 $ CAD)</span>
-              <div className="text-xl font-bold font-mono text-[#00FF9D]">
+              <div className="text-xl font-bold font-mono text-stone-200">
                 {creatorStats.totalPurchases} titres
               </div>
               <span className="text-[10px] text-neutral-500 font-sans">
@@ -147,7 +147,7 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
               </span>
             </div>
 
-            <div className="bg-[#090F12] border border-amber-500/30 rounded-xl p-3.5 space-y-1">
+            <div className="bg-[#100E0C] border border-amber-500/30 rounded-xl p-3.5 space-y-1">
               <span className="text-[11px] text-neutral-400 font-mono">Revenu Net Créateur (85%)</span>
               <div className="text-xl font-bold font-mono text-amber-400">
                 {creatorStats.creatorEarnings.toFixed(2)} $ CAD
@@ -157,7 +157,7 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
               </span>
             </div>
 
-            <div className="bg-[#090F12] border border-neutral-800 rounded-xl p-3.5 space-y-1">
+            <div className="bg-[#100E0C] border border-stone-800 rounded-xl p-3.5 space-y-1">
               <span className="text-[11px] text-neutral-400 font-mono">Frais Plateforme Thirty3 (15%)</span>
               <div className="text-xl font-bold font-mono text-neutral-300">
                 {creatorStats.platformFees.toFixed(2)} $ CAD
@@ -169,15 +169,15 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
           </div>
 
           {/* Colibri C-FFT Pitch Detection Live Report */}
-          <div className="bg-[#090F12] border border-cyan-500/30 rounded-xl p-4 space-y-3">
+          <div className="bg-[#100E0C] border border-amber-950/40 rounded-xl p-4 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Cpu className="w-4 h-4 text-cyan-400" />
-                <h3 className="text-sm font-bold text-cyan-300 font-mono">
+                <Cpu className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-bold text-amber-300 font-mono">
                   Moteur Colibri (C Natif + OpenMP IPC)
                 </h3>
               </div>
-              <span className="text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/30">
+              <span className="text-[11px] font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">
                 Latence &lt; 150ms
               </span>
             </div>
@@ -189,7 +189,7 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
               </div>
               <div className="bg-black/40 p-2 rounded border border-neutral-800">
                 <span className="text-neutral-500 block text-[10px]">Diapason Détecté</span>
-                <span className="text-[#00FF9D] font-bold">
+                <span className="text-[#10B981] font-bold">
                   {colibriAnalysis?.detectedFundamentalHz.toFixed(2) || '440.02'} Hz
                 </span>
               </div>
@@ -199,15 +199,15 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
               </div>
               <div className="bg-black/40 p-2 rounded border border-neutral-800">
                 <span className="text-neutral-500 block text-[10px]">Précision FFT</span>
-                <span className="text-cyan-400 font-bold">99.4% (Blackman)</span>
+                <span className="text-amber-400 font-bold">99.4% (Blackman)</span>
               </div>
             </div>
           </div>
 
           {/* Upload New Track Form */}
-          <form onSubmit={handleUpload} className="bg-[#090F12] border border-neutral-800 rounded-xl p-4 space-y-3">
+          <form onSubmit={handleUpload} className="bg-[#100E0C] border border-stone-800 rounded-xl p-4 space-y-3">
             <div className="flex items-center gap-2">
-              <Upload className="w-4 h-4 text-[#00FF9D]" />
+              <Upload className="w-4 h-4 text-amber-400" />
               <h3 className="text-sm font-bold text-white font-mono">
                 Publier un Nouveau Titre Harmonique
               </h3>
@@ -224,7 +224,7 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
                   placeholder="Ex: Aurora Borealis"
                   value={trackTitle}
                   onChange={(e) => setTrackTitle(e.target.value)}
-                  className="w-full bg-black/60 border border-neutral-800 focus:border-[#00FF9D] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
+                  className="w-full bg-black/60 border border-neutral-800 focus:border-amber-500 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
                 />
               </div>
 
@@ -237,7 +237,7 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
                   placeholder="Ex: Solfeggio Ensemble"
                   value={trackArtist}
                   onChange={(e) => setTrackArtist(e.target.value)}
-                  className="w-full bg-black/60 border border-neutral-800 focus:border-[#00FF9D] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
+                  className="w-full bg-black/60 border border-neutral-800 focus:border-amber-500 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none"
                 />
               </div>
 
@@ -248,7 +248,7 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
                 <select
                   value={originalTuning}
                   onChange={(e) => setOriginalTuning(e.target.value)}
-                  className="w-full bg-black/60 border border-neutral-800 focus:border-[#00FF9D] rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none font-mono"
+                  className="w-full bg-black/60 border border-neutral-800 focus:border-amber-500 rounded-lg px-3 py-1.5 text-xs text-white focus:outline-none font-mono"
                 >
                   <option value="440.0">440.0 Hz (Standard International)</option>
                   <option value="432.0">432.0 Hz (Déjà accordé en Verdi)</option>
@@ -262,7 +262,7 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
               type="submit"
               disabled={isProcessing}
               title="Lance la conversion 432 Hz, la normalisation sonore EBU R128 et met en ligne votre morceau"
-              className="w-full bg-[#00FF9D] hover:bg-[#00e68d] text-black font-bold text-xs py-2.5 px-4 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(0,255,157,0.3)] disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-stone-950 font-bold text-xs py-2.5 px-4 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,158,11,0.4)] disabled:opacity-50"
             >
               <Upload className="w-3.5 h-3.5" />
               <span>
@@ -273,22 +273,22 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
             </button>
 
             {/* Fiche descriptive claire et directe du bouton */}
-            <div id="creator-submit-guide" className="bg-black/50 border border-neutral-800 rounded-lg p-3 text-xs space-y-2">
-              <div className="flex items-center gap-1.5 text-[#00FF9D] font-mono font-semibold text-[11px]">
-                <Info className="w-3.5 h-3.5 text-[#00FF9D]" />
+            <div id="creator-submit-guide" className="bg-black/50 border border-stone-800 rounded-lg p-3 text-xs space-y-2">
+              <div className="flex items-center gap-1.5 text-amber-400 font-mono font-semibold text-[11px]">
+                <Info className="w-3.5 h-3.5 text-amber-400" />
                 <span>RÔLE & MODE D'EMPLOI DE CE BOUTON :</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-neutral-300 font-sans">
-                <div className="bg-[#090F12] p-2.5 rounded border border-neutral-800/80 space-y-1">
+                <div className="bg-[#141210] p-2.5 rounded border border-stone-800 space-y-1">
                   <div className="text-white font-medium flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D]"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                     <span>Que fait ce bouton ?</span>
                   </div>
                   <p className="text-neutral-400 text-[11px] leading-relaxed">
-                    Il prend votre morceau, le réaccorde au diapason naturel <strong className="text-[#00FF9D]">432 Hz</strong> (ratio exact 54/55), calibre le volume à la norme broadcast <strong className="text-white">EBU R128 (-14 LUFS)</strong> et le met instantanément en vente sur la plateforme.
+                    Il prend votre morceau, le réaccorde au diapason naturel <strong className="text-[#10B981]">432 Hz</strong> (ratio exact 54/55), calibre le volume à la norme broadcast <strong className="text-white">EBU R128 (-14 LUFS)</strong> et le met instantanément en vente sur la plateforme.
                   </p>
                 </div>
-                <div className="bg-[#090F12] p-2.5 rounded border border-neutral-800/80 space-y-1">
+                <div className="bg-[#141210] p-2.5 rounded border border-stone-800 space-y-1">
                   <div className="text-white font-medium flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                     <span>Quand l'utiliser ?</span>
@@ -311,7 +311,7 @@ export const CreatorStudioModal: React.FC<CreatorStudioModalProps> = ({ isOpen, 
               {acpEvents.map((evt) => (
                 <div key={evt.id} className="flex items-start gap-2">
                   <span className="text-amber-500 shrink-0">[{new Date(evt.timestamp).toLocaleTimeString()}]</span>
-                  <span className="text-[#00FF9D]">{evt.method}</span>
+                  <span className="text-amber-400">{evt.method}</span>
                   <span className="text-neutral-500 truncate">{JSON.stringify(evt.params || evt.result)}</span>
                 </div>
               ))}

@@ -34,11 +34,11 @@ export const Spectral432Fingerprint: React.FC = () => {
       const height = canvas.height;
 
       // Clear with deep dark studio background
-      ctx.fillStyle = '#060B0D';
+      ctx.fillStyle = '#100E0C';
       ctx.fillRect(0, 0, width, height);
 
       // Draw faint spectral frequency grid
-      ctx.strokeStyle = '#111F24';
+      ctx.strokeStyle = '#292524';
       ctx.lineWidth = 1;
       ctx.setLineDash([2, 4]);
 
@@ -108,17 +108,17 @@ export const Spectral432Fingerprint: React.FC = () => {
         const gradient = ctx.createLinearGradient(0, 0, 0, height);
         if (activeFrequency === 'phi') {
           gradient.addColorStop(0, 'rgba(245, 158, 11, 0.45)');
-          gradient.addColorStop(0.5, 'rgba(0, 255, 157, 0.25)');
+          gradient.addColorStop(0.5, 'rgba(217, 119, 6, 0.25)');
           gradient.addColorStop(1, 'rgba(0, 0, 0, 0.05)');
         } else if (activeFrequency === 'binaural') {
-          gradient.addColorStop(0, 'rgba(168, 85, 247, 0.45)');
-          gradient.addColorStop(0.6, 'rgba(0, 255, 157, 0.2)');
+          gradient.addColorStop(0, 'rgba(249, 115, 22, 0.45)');
+          gradient.addColorStop(0.6, 'rgba(251, 146, 60, 0.2)');
           gradient.addColorStop(1, 'rgba(0, 0, 0, 0.05)');
         } else if (activeFrequency === '432') {
-          gradient.addColorStop(0, 'rgba(0, 255, 157, 0.45)');
+          gradient.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
           gradient.addColorStop(1, 'rgba(0, 0, 0, 0.05)');
         } else {
-          gradient.addColorStop(0, 'rgba(100, 116, 139, 0.35)');
+          gradient.addColorStop(0, 'rgba(120, 113, 108, 0.35)');
           gradient.addColorStop(1, 'rgba(0, 0, 0, 0.05)');
         }
 
@@ -149,9 +149,10 @@ export const Spectral432Fingerprint: React.FC = () => {
             ctx.quadraticCurveTo(prev.x, prev.y, cx, cy);
           }
         });
-        ctx.strokeStyle = activeFrequency === 'phi' ? '#F59E0B' : '#00FF9D';
+        const strokeCol = activeFrequency === 'phi' ? '#F59E0B' : activeFrequency === 'binaural' ? '#F97316' : activeFrequency === '432' ? '#10B981' : '#A8A29E';
+        ctx.strokeStyle = strokeCol;
         ctx.lineWidth = 2;
-        ctx.shadowColor = activeFrequency === 'phi' ? '#F59E0B' : '#00FF9D';
+        ctx.shadowColor = strokeCol;
         ctx.shadowBlur = isPlaying ? 8 : 2;
         ctx.stroke();
         ctx.shadowBlur = 0; // reset shadow
@@ -164,7 +165,7 @@ export const Spectral432Fingerprint: React.FC = () => {
         );
 
         // Vertical highlight line at 432 Hz
-        ctx.strokeStyle = 'rgba(0, 255, 157, 0.8)';
+        ctx.strokeStyle = 'rgba(16, 185, 129, 0.8)';
         ctx.lineWidth = 1.5;
         ctx.setLineDash([3, 3]);
         ctx.beginPath();
@@ -175,13 +176,13 @@ export const Spectral432Fingerprint: React.FC = () => {
 
         // Glowing resonant peak dot at 432 Hz
         const pulse = 1 + (isPlaying ? Math.sin(time * 0.008) * 0.25 : 0);
-        ctx.fillStyle = '#00FF9D';
+        ctx.fillStyle = '#10B981';
         ctx.beginPath();
         ctx.arc(x432, pt432.y, 3.5 * pulse, 0, Math.PI * 2);
         ctx.fill();
 
         // 432 Hz Tag Flag
-        ctx.fillStyle = '#00FF9D';
+        ctx.fillStyle = '#10B981';
         ctx.font = 'bold 9px monospace';
         ctx.fillText('432 Hz (A4)', Math.min(width - 65, Math.max(5, x432 - 26)), 11);
 
@@ -238,25 +239,25 @@ export const Spectral432Fingerprint: React.FC = () => {
   return (
     <div
       id="spectral-432-fingerprint-container"
-      className="bg-[#070D10] border border-neutral-800/90 rounded-xl p-2.5 space-y-1.5 shadow-inner select-none transition-all"
+      className="bg-[#100E0C] border border-amber-950/40 rounded-xl p-2.5 space-y-1.5 shadow-inner select-none transition-all"
     >
       {/* Header Info Banner */}
       <div className="flex items-center justify-between text-[11px] font-mono">
         <div className="flex items-center gap-1.5">
-          <Activity className="w-3.5 h-3.5 text-[#00FF9D] animate-pulse" />
+          <Activity className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
           <span className="font-bold text-white tracking-tight">
             EMPREINTE SPECTRALE 432 Hz
           </span>
-          <span className="hidden sm:inline-block text-[10px] text-neutral-400">
+          <span className="hidden sm:inline-block text-[10px] text-stone-400">
             • Diapason Verdi
           </span>
         </div>
 
         <div className="flex items-center gap-2 text-[10px] font-mono">
-          <span className="text-neutral-400">
-            Pic: <strong className="text-[#00FF9D]">{liveStats.peakDb} dBFS</strong>
+          <span className="text-stone-400">
+            Pic: <strong className="text-amber-300">{liveStats.peakDb} dBFS</strong>
           </span>
-          <span className="text-neutral-600">|</span>
+          <span className="text-stone-600">|</span>
           <span className="text-amber-400 hidden xs:inline-block flex items-center gap-1">
             <Sparkles className="w-2.5 h-2.5 text-amber-400 inline" />
             <span>Q: 1.414</span>
@@ -265,7 +266,7 @@ export const Spectral432Fingerprint: React.FC = () => {
       </div>
 
       {/* Real-time Interactive Canvas */}
-      <div className="relative w-full h-12 bg-black/60 rounded-lg overflow-hidden border border-neutral-800/60">
+      <div className="relative w-full h-12 bg-black/60 rounded-lg overflow-hidden border border-amber-950/30">
         <canvas
           ref={canvasRef}
           width={420}
@@ -279,7 +280,7 @@ export const Spectral432Fingerprint: React.FC = () => {
         {/* Dynamic cursor tooltip on hover */}
         {hoverInfo && (
           <div
-            className="absolute top-1 pointer-events-none bg-neutral-900/95 border border-[#00FF9D]/60 text-[#00FF9D] text-[9px] font-mono px-1.5 py-0.5 rounded shadow-lg transform -translate-x-1/2 whitespace-nowrap z-20"
+            className="absolute top-1 pointer-events-none bg-stone-900/95 border border-amber-500/60 text-amber-300 text-[9px] font-mono px-1.5 py-0.5 rounded shadow-lg transform -translate-x-1/2 whitespace-nowrap z-20"
             style={{ left: `${hoverInfo.x}px` }}
           >
             {hoverInfo.freq} Hz ({hoverInfo.db} dBFS)
@@ -288,10 +289,10 @@ export const Spectral432Fingerprint: React.FC = () => {
       </div>
 
       {/* Bottom Sub-Frequency Harmonics Legend */}
-      <div className="flex items-center justify-between text-[9px] font-mono text-neutral-500 pt-0.5">
+      <div className="flex items-center justify-between text-[9px] font-mono text-stone-400 pt-0.5">
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
             <span>f₀ = 432 Hz</span>
           </span>
           <span className="flex items-center gap-1 text-amber-400/80">
