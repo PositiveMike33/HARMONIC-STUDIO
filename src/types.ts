@@ -1,4 +1,4 @@
-export type HarmonicFrequency = '440' | '432' | 'phi' | 'binaural';
+export type HarmonicFrequency = '440' | '432' | 'phi' | 'binaural' | 'orchestral';
 
 export interface HarmonicProfile {
   id: HarmonicFrequency;

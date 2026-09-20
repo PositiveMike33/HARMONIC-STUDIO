@@ -50,10 +50,12 @@ export type AudioProcessingMode =
   | '432' 
   | 'phi' 
   | 'binaural'
+  | 'orchestral'
   | '440_BYPASS' 
   | '432_NATURAL' 
   | '432_PHI' 
-  | '432_528_BINAURAL';
+  | '432_528_BINAURAL'
+  | '432_ORCHESTRAL';
 
 /**
  * Calcule la table de fenêtrage de Blackman-Harris 4-termes pour N = 4096.
@@ -251,6 +253,14 @@ class HarmonicDspProcessor extends AudioWorkletProcessor {
           pL = (pL * 0.94) + binL;
           pR = (pR * 0.94) + binR;
         }
+
+        // Mode 432 Ambiophonique Orchestral : Spatialisation 3D Mid/Side (champ holophonique)
+        if (this.mode === 'orchestral' || this.mode === '432_ORCHESTRAL') {
+          const mid = (pL + pR) * 0.5 * 0.96;
+          const side = (pL - pR) * 0.5 * 1.22;
+          pL = mid + side;
+          pR = mid - side;
+        }
       }
 
       this.writeIndex = (this.writeIndex + 1) % this.bufferSize;
@@ -291,7 +301,7 @@ export function createDspWorkletUrl(): string {
 // MOTEUR D'EXÉCUTION DSP PUR (NODE / TEST)
 // ==========================================
 export class HarmonicDspEngine {
-  public mode: '440' | '432' | 'phi' | 'binaural';
+  public mode: '440' | '432' | 'phi' | 'binaural' | 'orchestral';
   public sampleRate: number;
   public ratio: number;
   public fPhi: number;
@@ -313,7 +323,7 @@ export class HarmonicDspEngine {
   public baseDelay: number;
   public blackmanHarris: Float32Array;
 
-  constructor(sampleRate = 48000, initialMode: '440' | '432' | 'phi' | 'binaural' = 'phi') {
+  constructor(sampleRate = 48000, initialMode: '440' | '432' | 'phi' | 'binaural' | 'orchestral' = 'phi') {
     this.mode = initialMode;
     this.sampleRate = sampleRate;
     this.ratio = RATIO_440_TO_432;
@@ -340,7 +350,7 @@ export class HarmonicDspEngine {
     this.blackmanHarris = generateBlackmanHarrisWindow(FFT_WINDOW_SIZE);
   }
 
-  public setMode(mode: '440' | '432' | 'phi' | 'binaural'): void {
+  public setMode(mode: '440' | '432' | 'phi' | 'binaural' | 'orchestral'): void {
     this.mode = mode;
   }
 
@@ -415,6 +425,13 @@ export class HarmonicDspEngine {
 
           pL = (pL * 0.94) + binL;
           pR = (pR * 0.94) + binR;
+        }
+
+        if (this.mode === 'orchestral') {
+          const mid = (pL + pR) * 0.5 * 0.96;
+          const side = (pL - pR) * 0.5 * 1.22;
+          pL = mid + side;
+          pR = mid - side;
         }
       }
 

@@ -176,4 +176,27 @@ describe('FRONTEND EXHAUSTIVE UI CLICKS & AUDIOTRACK RESOLUTION TEST', () => {
       assert.ok(shareData.facebookUrl.includes(encodeURIComponent(shareData.shareUrl)), 'Facebook doit recevoir l URL exacte de la piste avec la fréquence active');
     }
   });
+
+  test('6. Test du bouton Favori (état local favorites) et du bouton Restart', async () => {
+    const store = useAudioStore.getState();
+
+    // 1. Test d'ajout d'une piste aux favoris
+    const trackId = 'splintered-self';
+    assert.equal(store.isFavorite(trackId), false, 'La piste ne doit pas être favorite au départ');
+
+    store.toggleFavorite(trackId);
+    assert.equal(useAudioStore.getState().isFavorite(trackId), true, 'La piste doit être dans les favoris après toggle');
+    assert.ok(useAudioStore.getState().favorites.includes(trackId));
+
+    // 2. Test de retrait des favoris
+    store.toggleFavorite(trackId);
+    assert.equal(useAudioStore.getState().isFavorite(trackId), false, 'La piste doit être retirée des favoris après un second toggle');
+
+    // 3. Test du bouton Restart
+    useAudioStore.setState({ currentTime: 45.2, isPlaying: true });
+    assert.equal(useAudioStore.getState().currentTime, 45.2);
+
+    await useAudioStore.getState().restartPlayback();
+    assert.equal(useAudioStore.getState().currentTime, 0, 'Le temps courant doit être remis à zéro lors d un Restart');
+  });
 });

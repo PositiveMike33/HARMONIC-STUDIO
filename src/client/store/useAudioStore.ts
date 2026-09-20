@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { HarmonicFrequency, Track, ColibriAnalysisResult, AcpSessionEvent } from '../../types';
 import { createDspWorkletUrl } from '../../dsp/PitchShifterWorklet';
+import { LINKIN_PARK_ORCHESTRAL_TRACKS } from '../data/orchestralCatalogue';
 
 export const INITIAL_TRACKS: Track[] = [
   {
@@ -49,6 +50,14 @@ export const INITIAL_TRACKS: Track[] = [
         id: 'binaural',
         title: 'Master 432Hz + 528Hz Binaural',
         tuning: 'Ondes Thêta 4.0 Hz + Fréquence Sacrée 528 Hz',
+        duration: '',
+        bitrate: '',
+        fingerprint: '',
+      },
+      {
+        id: 'orchestral',
+        title: 'Master 432 Hz Ambiophonique Orchestral',
+        tuning: 'A=432.0 Hz + Champ 3D Holophonique Symphonique',
         duration: '',
         bitrate: '',
         fingerprint: '',
@@ -105,6 +114,14 @@ export const INITIAL_TRACKS: Track[] = [
         bitrate: '',
         fingerprint: '',
       },
+      {
+        id: 'orchestral',
+        title: 'Master 432 Hz Ambiophonique Orchestral',
+        tuning: 'A=432.0 Hz + Champ 3D Holophonique Symphonique',
+        duration: '',
+        bitrate: '',
+        fingerprint: '',
+      },
     ],
   },
   {
@@ -153,6 +170,14 @@ export const INITIAL_TRACKS: Track[] = [
         id: 'binaural',
         title: 'Master 432Hz + 528Hz Binaural',
         tuning: 'Ondes Thêta 4.0 Hz + Fréquence Sacrée 528 Hz',
+        duration: '',
+        bitrate: '',
+        fingerprint: '',
+      },
+      {
+        id: 'orchestral',
+        title: 'Master 432 Hz Ambiophonique Orchestral',
+        tuning: 'A=432.0 Hz + Champ 3D Holophonique Symphonique',
         duration: '',
         bitrate: '',
         fingerprint: '',
@@ -206,6 +231,14 @@ export const INITIAL_TRACKS: Track[] = [
         id: 'binaural',
         title: 'Master 432Hz + 528Hz Binaural',
         tuning: 'Ondes Thêta 4.0 Hz + Fréquence Sacrée 528 Hz',
+        duration: '',
+        bitrate: '',
+        fingerprint: '',
+      },
+      {
+        id: 'orchestral',
+        title: 'Master 432 Hz Ambiophonique Orchestral',
+        tuning: 'A=432.0 Hz + Champ 3D Holophonique Symphonique',
         duration: '',
         bitrate: '',
         fingerprint: '',
@@ -292,16 +325,36 @@ interface AudioStore {
   setCustom432AudioUrl: (url: string, durationSec?: number) => void;
   customBinauralAudioUrl: string | null;
   setCustomBinauralAudioUrl: (url: string, durationSec?: number) => void;
+  customOrchestralAudioUrl: string | null;
+  setCustomOrchestralAudioUrl: (url: string, durationSec?: number) => void;
   setTrackCustomAudio: (trackId: string, freq: HarmonicFrequency, url: string, fileName?: string, durationSec?: number, autoPlay?: boolean) => void;
   removeTrackCustomAudio: (trackId: string, freq: HarmonicFrequency) => void;
   playTrackMaster: (track: Track, freq: HarmonicFrequency) => Promise<void>;
+
+  // Favoris & Contrôles
+  favorites: string[];
+  toggleFavorite: (trackId: string) => void;
+  isFavorite: (trackId: string) => boolean;
+  restartPlayback: () => Promise<void>;
 }
+
+const getInitialFavorites = (): string[] => {
+  if (typeof window !== 'undefined') {
+    try {
+      const stored = localStorage.getItem('harmonic_favorites');
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+};
 
 export const useAudioStore = create<AudioStore>((set, get) => ({
   activeTab: 'player',
   setActiveTab: (tab) => set({ activeTab: tab }),
 
-  tracks: INITIAL_TRACKS,
+  tracks: [...INITIAL_TRACKS, ...LINKIN_PARK_ORCHESTRAL_TRACKS.filter((t) => !INITIAL_TRACKS.some((it) => it.id === t.id))],
   currentTrack: INITIAL_TRACKS[0],
   isPlaying: false,
   currentTime: 0,
@@ -316,6 +369,39 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
   custom440AudioUrl: null,
   custom432AudioUrl: null,
   customBinauralAudioUrl: null,
+  customOrchestralAudioUrl: null,
+
+  favorites: getInitialFavorites(),
+  toggleFavorite: (trackId: string) => {
+    const { favorites } = get();
+    const next = favorites.includes(trackId)
+      ? favorites.filter((id) => id !== trackId)
+      : [...favorites, trackId];
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('harmonic_favorites', JSON.stringify(next));
+      } catch (err) {
+        console.error('Erreur sauvegarde favoris:', err);
+      }
+    }
+    set({ favorites: next });
+  },
+  isFavorite: (trackId: string) => get().favorites.includes(trackId),
+  restartPlayback: async () => {
+    const { engine, isPlaying } = get();
+    if (engine.audioElement) {
+      engine.audioElement.currentTime = 0;
+      if (!isPlaying) {
+        try {
+          await engine.audioElement.play();
+          set({ isPlaying: true });
+        } catch (err) {
+          console.error('Erreur restartPlayback:', err);
+        }
+      }
+    }
+    set({ currentTime: 0 });
+  },
 
   setMasterSongUrl: (url: string, durationSec: number = 216) => {
     set({ masterSongUrl: url, duration: durationSec });
@@ -393,6 +479,22 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
     }
   },
 
+  setCustomOrchestralAudioUrl: (url: string, durationSec: number = 216) => {
+    set((state) => ({
+      customOrchestralAudioUrl: url,
+      masterSongUrl: state.masterSongUrl || url,
+      duration: durationSec,
+    }));
+    const { engine, isPlaying, activeFrequency } = get();
+    if (engine.audioElement && activeFrequency === 'orchestral') {
+      engine.audioElement.src = url;
+      engine.audioElement.load();
+      if (isPlaying) {
+        engine.audioElement.play().catch(console.error);
+      }
+    }
+  },
+
   setTrackCustomAudio: async (
     trackId: string,
     freq: HarmonicFrequency,
@@ -415,7 +517,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
             bitrate: '320 kbps MP3 EBU R128',
             duration: durationSec
               ? `${Math.floor(durationSec / 60)}:${(durationSec % 60).toString().padStart(2, '0')}`
-              : (freq === '432' ? '03:36' : '03:32'),
+              : (freq === '432' || freq === 'orchestral' ? '03:36' : '03:32'),
           };
         }
         return arch;
@@ -444,6 +546,8 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
         get().setCustomPhiAudioUrl(url, durationSec);
       } else if (freq === 'binaural') {
         get().setCustomBinauralAudioUrl(url, durationSec);
+      } else if (freq === 'orchestral') {
+        get().setCustomOrchestralAudioUrl(url, durationSec);
       }
     }
 
@@ -460,7 +564,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
           currentTrack: targetTrack,
           activeFrequency: freq,
           isPlaying: true,
-          duration: durationSec || (freq === '432' ? 216 : 212),
+          duration: durationSec || (freq === '432' || freq === 'orchestral' ? 216 : 212),
         });
         setFrequency(freq);
         currentEngine.audioElement.src = url;
@@ -507,6 +611,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       else if (freq === '432') set({ custom432AudioUrl: null });
       else if (freq === 'phi') set({ customPhiAudioUrl: null });
       else if (freq === 'binaural') set({ customBinauralAudioUrl: null });
+      else if (freq === 'orchestral') set({ customOrchestralAudioUrl: null });
     }
 
     set({
@@ -539,13 +644,14 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
     set({
       currentTrack: track,
       activeFrequency: freq,
-      duration: track.durationSeconds || (freq === '432' ? 216 : 212),
+      duration: track.durationSeconds || (freq === '432' || freq === 'orchestral' ? 216 : 212),
     });
 
     if (freq === '440' && matchingArchive?.customAudioUrl) set({ custom440AudioUrl: matchingArchive.customAudioUrl });
     else if (freq === '432' && matchingArchive?.customAudioUrl) set({ custom432AudioUrl: matchingArchive.customAudioUrl });
     else if (freq === 'phi' && matchingArchive?.customAudioUrl) set({ customPhiAudioUrl: matchingArchive.customAudioUrl });
     else if (freq === 'binaural' && matchingArchive?.customAudioUrl) set({ customBinauralAudioUrl: matchingArchive.customAudioUrl });
+    else if (freq === 'orchestral' && matchingArchive?.customAudioUrl) set({ customOrchestralAudioUrl: matchingArchive.customAudioUrl });
 
     setFrequency(freq);
 
@@ -654,23 +760,49 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       limiter.attack.setValueAtTime(0.002, ctx.currentTime);
       limiter.release.setValueAtTime(0.05, ctx.currentTime);
 
-      // 4-Way Parallel Gain Switching Matrix for 35ms constant-power cross-fade:
-      // '440', '432', 'phi', 'binaural'
+      // 5-Way Parallel Gain Switching Matrix for 35ms constant-power cross-fade:
+      // '440', '432', 'phi', 'binaural', 'orchestral'
       const gain440 = ctx.createGain();
       const gain432 = ctx.createGain();
       const gainPhi = ctx.createGain();
       const gainBinaural = ctx.createGain();
+      const gainOrchestral = ctx.createGain();
 
       const initialMode = get().activeFrequency;
       gain440.gain.setValueAtTime(initialMode === '440' ? 1.0 : 0.0, ctx.currentTime);
       gain432.gain.setValueAtTime(initialMode === '432' ? 1.0 : 0.0, ctx.currentTime);
       gainPhi.gain.setValueAtTime(initialMode === 'phi' ? 1.0 : 0.0, ctx.currentTime);
       gainBinaural.gain.setValueAtTime(initialMode === 'binaural' ? 1.0 : 0.0, ctx.currentTime);
+      gainOrchestral.gain.setValueAtTime(initialMode === 'orchestral' ? 1.0 : 0.0, ctx.currentTime);
 
       // Path 1: 440 Standard (direct bypass)
       source.connect(gain440);
 
-      // Path 2 & 3 & 4: 432 Hz filtering & pitch simulation
+      // Orchestral acoustic room equalization chain:
+      // Presence +1.2 dB @ 1.8 kHz, Notch -2.5 dB @ 4.2 kHz, High cut -2.0 dB @ 7.5 kHz
+      const orchEqPres = ctx.createBiquadFilter();
+      orchEqPres.type = 'peaking';
+      orchEqPres.frequency.setValueAtTime(1800, ctx.currentTime);
+      orchEqPres.Q.setValueAtTime(1.0, ctx.currentTime);
+      orchEqPres.gain.setValueAtTime(1.2, ctx.currentTime);
+
+      const orchEqNotch = ctx.createBiquadFilter();
+      orchEqNotch.type = 'peaking';
+      orchEqNotch.frequency.setValueAtTime(4200, ctx.currentTime);
+      orchEqNotch.Q.setValueAtTime(2.0, ctx.currentTime);
+      orchEqNotch.gain.setValueAtTime(-2.5, ctx.currentTime);
+
+      const orchEqCut = ctx.createBiquadFilter();
+      orchEqCut.type = 'peaking';
+      orchEqCut.frequency.setValueAtTime(7500, ctx.currentTime);
+      orchEqCut.Q.setValueAtTime(1.2, ctx.currentTime);
+      orchEqCut.gain.setValueAtTime(-2.0, ctx.currentTime);
+
+      orchEqPres.connect(orchEqNotch);
+      orchEqNotch.connect(orchEqCut);
+      orchEqCut.connect(gainOrchestral);
+
+      // Path 2 & 3 & 4 & 5: 432 Hz filtering & pitch simulation
       // Pitch shift ratio r = 432 / 440 = 54/55 -> -31.7667 cents
       // Use subtle Biquad harmonic realigner + worklet if available
       let workletNode: AudioWorkletNode | null = null;
@@ -683,6 +815,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
         workletNode.connect(gain432);
         workletNode.connect(gainPhi);
         workletNode.connect(gainBinaural);
+        workletNode.connect(orchEqPres);
       } catch (err) {
         console.warn('AudioWorklet module fallback to native Web Audio graph:', err);
         // Fallback filter chain:
@@ -696,6 +829,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
         filter432.connect(gain432);
         filter432.connect(gainPhi);
         filter432.connect(gainBinaural);
+        filter432.connect(orchEqPres);
       }
 
       // Golden ratio Phi LFO: 1.618033 Hz amplitude modulation
@@ -733,11 +867,12 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       binL.start();
       binR.start();
 
-      // Connect all 4 branches into master limiter and analyser
+      // Connect all 5 branches into master limiter and analyser
       gain440.connect(masterGain);
       gain432.connect(masterGain);
       gainPhi.connect(masterGain);
       gainBinaural.connect(masterGain);
+      gainOrchestral.connect(masterGain);
 
       masterGain.connect(limiter);
       limiter.connect(analyser);
@@ -809,6 +944,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
             '432': gain432,
             'phi': gainPhi,
             'binaural': gainBinaural,
+            'orchestral': gainOrchestral,
           },
           phiLfoOsc: phiLfo,
           binauralOscL: binL,
@@ -856,7 +992,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
   },
 
   playTrack: async (track: Track) => {
-    const { initAudioEngine, engine, activeFrequency, customPhiAudioUrl, custom440AudioUrl, custom432AudioUrl, customBinauralAudioUrl, masterSongUrl } = get();
+    const { initAudioEngine, engine, activeFrequency, customPhiAudioUrl, custom440AudioUrl, custom432AudioUrl, customBinauralAudioUrl, customOrchestralAudioUrl, masterSongUrl } = get();
     if (!engine.isInitialized) {
       await initAudioEngine();
     }
@@ -876,13 +1012,15 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       targetUrl = custom432AudioUrl;
     } else if (activeFrequency === 'binaural' && customBinauralAudioUrl) {
       targetUrl = customBinauralAudioUrl;
+    } else if (activeFrequency === 'orchestral' && customOrchestralAudioUrl) {
+      targetUrl = customOrchestralAudioUrl;
     } else if (masterSongUrl) {
       targetUrl = masterSongUrl;
     } else {
       targetUrl = `${track.audioUrl}?freq=${activeFrequency}`;
     }
 
-    const targetDuration = activeFrequency === '432' ? 216 : (activeFrequency === 'phi' || activeFrequency === '440' || activeFrequency === 'binaural') ? 212 : track.durationSeconds;
+    const targetDuration = (activeFrequency === '432' || activeFrequency === 'orchestral') ? 216 : (activeFrequency === 'phi' || activeFrequency === '440' || activeFrequency === 'binaural') ? 212 : track.durationSeconds;
 
     currentEngine.audioElement.src = targetUrl;
     currentEngine.audioElement.load();
@@ -904,7 +1042,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
   },
 
   togglePlay: async () => {
-    const { initAudioEngine, engine, isPlaying, activeFrequency, customPhiAudioUrl, custom440AudioUrl, custom432AudioUrl, customBinauralAudioUrl, masterSongUrl, currentTrack } = get();
+    const { initAudioEngine, engine, isPlaying, activeFrequency, customPhiAudioUrl, custom440AudioUrl, custom432AudioUrl, customBinauralAudioUrl, customOrchestralAudioUrl, masterSongUrl, currentTrack } = get();
     if (!engine.isInitialized) {
       await initAudioEngine();
     }
@@ -929,6 +1067,8 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
           targetUrl = custom432AudioUrl;
         } else if (activeFrequency === 'binaural' && customBinauralAudioUrl) {
           targetUrl = customBinauralAudioUrl;
+        } else if (activeFrequency === 'orchestral' && customOrchestralAudioUrl) {
+          targetUrl = customOrchestralAudioUrl;
         } else if (masterSongUrl) {
           targetUrl = masterSongUrl;
         } else {
@@ -937,7 +1077,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
 
         currentEngine.audioElement.src = targetUrl;
         currentEngine.audioElement.load();
-        set({ duration: activeFrequency === '432' ? 216 : (activeFrequency === 'phi' || activeFrequency === '440' || activeFrequency === 'binaural') ? 212 : currentTrack.durationSeconds });
+        set({ duration: (activeFrequency === '432' || activeFrequency === 'orchestral') ? 216 : (activeFrequency === 'phi' || activeFrequency === '440' || activeFrequency === 'binaural') ? 212 : currentTrack.durationSeconds });
       }
       try {
         await currentEngine.audioElement.play();
@@ -963,6 +1103,7 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       custom440AudioUrl,
       custom432AudioUrl,
       customBinauralAudioUrl,
+      customOrchestralAudioUrl,
       masterSongUrl,
       currentTrack,
     } = get();
@@ -984,6 +1125,8 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
         specificCustomUrl = custom432AudioUrl;
       } else if (mode === 'binaural' && customBinauralAudioUrl) {
         specificCustomUrl = customBinauralAudioUrl;
+      } else if (mode === 'orchestral' && customOrchestralAudioUrl) {
+        specificCustomUrl = customOrchestralAudioUrl;
       }
 
       // If current track has a specific assigned master for this frequency, prioritize it
@@ -1026,13 +1169,13 @@ export const useAudioStore = create<AudioStore>((set, get) => ({
       }
     }
 
-    // 35ms Constant-power cross-fade across the 4 GainNodes
+    // 35ms Constant-power cross-fade across the 5 GainNodes
     if (engine.audioContext && engine.gainNodes) {
       const ctx = engine.audioContext;
       const now = ctx.currentTime;
       const crossfadeDuration = 0.035; // 35 milliseconds
 
-      const modes: HarmonicFrequency[] = ['440', '432', 'phi', 'binaural'];
+      const modes: HarmonicFrequency[] = ['440', '432', 'phi', 'binaural', 'orchestral'];
       modes.forEach((m) => {
         const gainNode = engine.gainNodes![m];
         if (gainNode) {

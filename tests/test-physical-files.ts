@@ -3,9 +3,9 @@ import { resolvePhysicalTrackFile, CERTIFIED_TRACKS_DB } from '../server';
 const tracks = ['splintered-self', 'bones-for-the-crows', 'counting-stars', 'the-soldier-4-mike-solo', 'the-soldier-4'];
 
 const modeSets = {
-  'Backend Canonical': ['440hz', '432hz', 'phi_432hz', 'phi_432hz_528hz_binaural'],
-  'Frontend App.tsx': ['440_BYPASS', '432_NATURAL', '432_PHI', '432_528_BINAURAL'],
-  'AudioStore': ['440', '432', 'phi', 'binaural'],
+  'Backend Canonical': ['440hz', '432hz', 'phi_432hz', 'phi_432hz_528hz_binaural', '432hz_orchestral'],
+  'Frontend App.tsx': ['440_BYPASS', '432_NATURAL', '432_PHI', '432_528_BINAURAL', '432_ORCHESTRAL'],
+  'AudioStore': ['440', '432', 'phi', 'binaural', 'orchestral'],
 };
 
 let allPass = true;

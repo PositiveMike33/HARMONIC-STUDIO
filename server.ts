@@ -150,19 +150,25 @@ export function resolvePhysicalTrackFile(trackId: string, tuning = 'phi_432hz'):
         ? 'bones-for-the-crows'
         : (normId.includes('counting') || normId.includes('onerepublic')
           ? 'counting-stars'
-          : 'the-soldier-4'));
+          : (normId.includes('soldier') || normId.includes('mike')
+            ? 'the-soldier-4'
+            : (fs.existsSync(path.join(process.cwd(), 'public', 'audio', normId)) ? normId : 'the-soldier-4'))));
     const simpleMode = (mode.includes('528') || mode.includes('binaural'))
       ? 'binaural'
-      : (mode.includes('phi')
-        ? 'phi'
-        : ((mode === '432' || mode === '432hz' || mode.includes('natural'))
-          ? '432'
-          : '440'));
+      : (mode.includes('orchestral') || mode.includes('orchestre')
+        ? 'orchestral'
+        : (mode.includes('phi')
+          ? 'phi'
+          : ((mode === '432' || mode === '432hz' || mode.includes('natural'))
+            ? '432'
+            : '440')));
 
     const checkFile = (candidatePath: string) => {
       if (fs.existsSync(candidatePath)) return candidatePath;
       const basename = path.basename(candidatePath);
       const publicBase = path.join(process.cwd(), 'public', 'audio');
+      const direct = path.join(publicBase, normId, `${simpleMode}.mp3`);
+      if (fs.existsSync(direct)) return direct;
       for (const sub of ['splintered-self', 'bones-for-the-crows', 'counting-stars', 'the-soldier-4']) {
         const p = path.join(publicBase, sub, basename);
         if (fs.existsSync(p)) return p;

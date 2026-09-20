@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, Pause, Zap, Volume2, VolumeX, Sliders, SkipBack, SkipForward, ListMusic, Trash2, Repeat, X, ShieldCheck, CheckCircle, Upload } from 'lucide-react';
+import { Play, Pause, Zap, Volume2, VolumeX, Sliders, SkipBack, SkipForward, ListMusic, Trash2, Repeat, X, ShieldCheck, CheckCircle, Upload, Heart, RotateCcw, Sparkles } from 'lucide-react';
 import { useAudioStore } from '../client/store/useAudioStore';
 import { HarmonicFrequency } from '../types';
 import { Spectral432Fingerprint } from './Spectral432Fingerprint';
@@ -37,6 +37,12 @@ export const HarmonicPlayer: React.FC = () => {
     setCustom432AudioUrl,
     customBinauralAudioUrl,
     setCustomBinauralAudioUrl,
+    customOrchestralAudioUrl,
+    setCustomOrchestralAudioUrl,
+    favorites,
+    toggleFavorite,
+    isFavorite,
+    restartPlayback,
   } = useAudioStore();
 
   const [isQueueOpen, setIsQueueOpen] = useState(false);
@@ -44,11 +50,13 @@ export const HarmonicPlayer: React.FC = () => {
   const [isDraggingOver440, setIsDraggingOver440] = useState(false);
   const [isDraggingOver432, setIsDraggingOver432] = useState(false);
   const [isDraggingOverBinaural, setIsDraggingOverBinaural] = useState(false);
+  const [isDraggingOverOrchestral, setIsDraggingOverOrchestral] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const phiFileInputRef = useRef<HTMLInputElement | null>(null);
   const file440InputRef = useRef<HTMLInputElement | null>(null);
   const file432InputRef = useRef<HTMLInputElement | null>(null);
   const fileBinauralInputRef = useRef<HTMLInputElement | null>(null);
+  const fileOrchestralInputRef = useRef<HTMLInputElement | null>(null);
 
   const handlePhiFile = (file: File) => {
     if (!file) return;
@@ -102,6 +110,19 @@ export const HarmonicPlayer: React.FC = () => {
     }
   };
 
+  const handleOrchestralFile = (file: File) => {
+    if (!file) return;
+    const objectUrl = URL.createObjectURL(file);
+    setCustomOrchestralAudioUrl(objectUrl, 216);
+    setMasterSongUrl(objectUrl, 216);
+    if (activeFrequency !== 'orchestral') {
+      setFrequency('orchestral');
+    }
+    if (!isPlaying) {
+      togglePlay();
+    }
+  };
+
   // Format seconds to M:SS
   const formatTime = (seconds: number) => {
     if (isNaN(seconds) || seconds < 0) return '0:00';
@@ -140,15 +161,17 @@ export const HarmonicPlayer: React.FC = () => {
         const val = isPlaying ? (sampleBuffer[dataIndex] || 8) : 6;
         const barHeight = Math.max(2, (val / 255) * height);
 
-        // Palette visuelle chaude analogique studio
+        // Palette visuelle stricte avec contraste > 9:1 (#00FF9D / #F59E0B / #00E5FF)
         if (activeFrequency === 'phi') {
-          ctx.fillStyle = i % 2 === 0 ? '#F59E0B' : '#D97706';
+          ctx.fillStyle = i % 2 === 0 ? '#F59E0B' : '#00FF9D';
         } else if (activeFrequency === 'binaural') {
-          ctx.fillStyle = i % 2 === 0 ? '#F97316' : '#FB923C';
+          ctx.fillStyle = i % 2 === 0 ? '#8B5CF6' : '#00FF9D';
+        } else if (activeFrequency === 'orchestral') {
+          ctx.fillStyle = i % 2 === 0 ? '#00E5FF' : '#00FF9D';
         } else if (activeFrequency === '432') {
-          ctx.fillStyle = i % 2 === 0 ? '#10B981' : '#34D399';
+          ctx.fillStyle = '#00FF9D';
         } else {
-          ctx.fillStyle = '#78716C';
+          ctx.fillStyle = '#64748b';
         }
 
         ctx.fillRect(i * barWidth, height - barHeight, barWidth - 1.5, barHeight);
@@ -203,6 +226,13 @@ export const HarmonicPlayer: React.FC = () => {
       icon: '🧬',
       accentColor: 'purple',
     },
+    {
+      id: 'orchestral',
+      title: '432 Ambiophonique Orchestral',
+      subtitle: 'Immersion Symphonique 3D • MP3 Intégré (03:36)',
+      icon: '🎻',
+      accentColor: 'cyan',
+    },
   ];
 
   const progressPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -210,7 +240,7 @@ export const HarmonicPlayer: React.FC = () => {
   return (
     <aside
       id="harmonic-player-container"
-      className="w-full bg-[#141210] border border-amber-950/40 rounded-2xl p-5 md:p-6 shadow-[0_10px_35px_rgba(0,0,0,0.7)] flex flex-col justify-between space-y-5 relative"
+      className="w-full bg-[#0F171B] border border-neutral-800/90 rounded-2xl p-5 md:p-6 shadow-[0_10px_35px_rgba(0,0,0,0.7)] flex flex-col justify-between space-y-5 relative"
     >
       {/* Top Album Art & Track Info */}
       <div className="flex flex-col items-center text-center space-y-3 pt-2">
@@ -226,12 +256,40 @@ export const HarmonicPlayer: React.FC = () => {
 
         {/* Track Title and Master Subtitle */}
         <div className="space-y-0.5">
-          <h3
-            id="player-track-title"
-            className="text-lg md:text-xl font-bold text-white tracking-tight font-mono"
-          >
-            {currentTrack.title}
-          </h3>
+          <div className="flex items-center justify-center gap-2 flex-wrap">
+            <h3
+              id="player-track-title"
+              className="text-lg md:text-xl font-bold text-white tracking-tight font-mono"
+            >
+              {currentTrack.title}
+            </h3>
+            {/* Bouton Favori */}
+            <button
+              id={`btn-fav-player-${currentTrack.id}`}
+              onClick={() => toggleFavorite(currentTrack.id)}
+              title={isFavorite(currentTrack.id) ? 'Retirer des favoris' : 'Sauvegarder dans mes favoris'}
+              aria-label={`Favori ${currentTrack.title}`}
+              className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md transition-all cursor-pointer select-none ${
+                isFavorite(currentTrack.id)
+                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.35)]'
+                  : 'bg-white/5 text-neutral-400 hover:text-white border border-white/10 hover:bg-white/10'
+              }`}
+            >
+              <Heart className={`w-3.5 h-3.5 ${isFavorite(currentTrack.id) ? 'fill-rose-500 text-rose-500' : ''}`} />
+              <span className="font-mono text-[10px]">Favori</span>
+            </button>
+            {/* Bouton Restart à côté */}
+            <button
+              id="btn-player-restart-title"
+              onClick={restartPlayback}
+              title="Redémarrer le morceau au début (0:00)"
+              aria-label="Redémarrer le morceau"
+              className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md bg-white/5 text-neutral-400 hover:text-[#00FF9D] hover:bg-[#00FF9D]/10 border border-white/10 hover:border-[#00FF9D]/30 transition-all cursor-pointer group select-none"
+            >
+              <RotateCcw className="w-3 h-3 group-hover:-rotate-45 transition-transform text-[#00FF9D]" />
+              <span className="font-mono text-[10px]">Restart</span>
+            </button>
+          </div>
           <p className="text-xs text-neutral-400 font-mono">
             {currentTrack.artist} • Master Studio Remasterisé
           </p>
@@ -245,7 +303,7 @@ export const HarmonicPlayer: React.FC = () => {
             <Zap className="w-3.5 h-3.5 text-amber-400" />
             <span>COMPARAISON DES DIFFÉRENCES DE SONS :</span>
           </div>
-          <span className="text-amber-400 font-mono text-[11px] tracking-wide animate-pulse">
+          <span className="text-[#00FF9D] font-mono text-[11px] tracking-wide animate-pulse">
             Bascule directe sans coupure
           </span>
         </div>
@@ -258,6 +316,7 @@ export const HarmonicPlayer: React.FC = () => {
             const is440 = opt.id === '440';
             const is432 = opt.id === '432';
             const isBinaural = opt.id === 'binaural';
+            const isOrchestral = opt.id === 'orchestral';
 
             const handleFreqClick = () => {
               // Assure que le morceau se lance immédiatement au clic sur la case si le lecteur est en pause
@@ -299,6 +358,12 @@ export const HarmonicPlayer: React.FC = () => {
                         e.stopPropagation();
                         setIsDraggingOverBinaural(true);
                       }
+                    : isOrchestral
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverOrchestral(true);
+                      }
                     : undefined
                 }
                 onDragLeave={
@@ -325,6 +390,12 @@ export const HarmonicPlayer: React.FC = () => {
                         e.preventDefault();
                         e.stopPropagation();
                         setIsDraggingOverBinaural(false);
+                      }
+                    : isOrchestral
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverOrchestral(false);
                       }
                     : undefined
                 }
@@ -361,6 +432,14 @@ export const HarmonicPlayer: React.FC = () => {
                         const file = e.dataTransfer.files?.[0];
                         if (file) handleBinauralFile(file);
                       }
+                    : isOrchestral
+                    ? (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setIsDraggingOverOrchestral(false);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file) handleOrchestralFile(file);
+                      }
                     : undefined
                 }
                 title={
@@ -372,6 +451,8 @@ export const HarmonicPlayer: React.FC = () => {
                     ? "Master 432 Hz Naturel : MP3 intégré (03:36). Glissez-déposez ou cliquez pour remplacer le MP3."
                     : isBinaural
                     ? "Master 432Hz + 528Hz Binaural : MP3 intégré avec réparation ADN 528 Hz (03:32). Glissez-déposez ou cliquez pour remplacer le MP3."
+                    : isOrchestral
+                    ? "Master 432 Ambiophonique Orchestral : MP3 intégré avec immersion 3D et acoustique de salle (03:36). Glissez-déposez ou cliquez pour remplacer le MP3."
                     : undefined
                 }
                 className={`p-2.5 md:p-3 rounded-xl text-left transition-all duration-150 cursor-pointer flex flex-col justify-between border relative ${
@@ -379,21 +460,27 @@ export const HarmonicPlayer: React.FC = () => {
                     ? isPhi
                       ? 'border-[#F59E0B] bg-[#221605] shadow-[0_0_18px_rgba(245,158,11,0.35)] text-amber-200 ring-1 ring-[#F59E0B]/40'
                       : is440
-                      ? 'border-stone-400 bg-stone-900 shadow-[0_0_18px_rgba(255,255,255,0.18)] text-white ring-1 ring-stone-400/40'
+                      ? 'border-neutral-400 bg-neutral-900 shadow-[0_0_18px_rgba(255,255,255,0.18)] text-white ring-1 ring-neutral-400/40'
                       : isBinaural
                       ? 'border-purple-500 bg-[#1A0B2E] shadow-[0_0_18px_rgba(168,85,247,0.3)] text-purple-200 ring-1 ring-purple-500/40'
-                      : 'border-[#10B981] bg-[#0C1F17] shadow-[0_0_15px_rgba(16,185,129,0.25)] text-[#34D399]'
+                      : isOrchestral
+                      ? 'border-[#00E5FF] bg-[#031E2A] shadow-[0_0_18px_rgba(0,229,255,0.35)] text-cyan-200 ring-1 ring-[#00E5FF]/40'
+                      : 'border-[#00FF9D] bg-[#0A1B14] shadow-[0_0_15px_rgba(0,255,157,0.25)] text-[#00FF9D]'
                     : isPhi && isDraggingOverPhi
                     ? 'border-amber-400 bg-amber-950/40 text-amber-200 scale-[1.01]'
                     : is440 && isDraggingOver440
-                    ? 'border-stone-400 bg-stone-800/80 text-white scale-[1.01]'
+                    ? 'border-neutral-400 bg-neutral-800/80 text-white scale-[1.01]'
                     : is432 && isDraggingOver432
                     ? 'border-emerald-400 bg-emerald-950/40 text-emerald-200 scale-[1.01]'
                     : isBinaural && isDraggingOverBinaural
                     ? 'border-purple-400 bg-purple-950/40 text-purple-200 scale-[1.01]'
+                    : isOrchestral && isDraggingOverOrchestral
+                    ? 'border-cyan-400 bg-cyan-950/40 text-cyan-200 scale-[1.01]'
                     : isBinaural
-                    ? 'border-stone-800 bg-[#141210]/80 hover:bg-[#1E1610] text-stone-300 hover:text-white'
-                    : 'border-stone-800 bg-[#141210]/80 hover:bg-[#1C1815] text-stone-300 hover:text-white'
+                    ? 'border-neutral-800 bg-[#121A1E]/80 hover:bg-[#1C1226] text-neutral-300 hover:text-white'
+                    : isOrchestral
+                    ? 'border-neutral-800 bg-[#121A1E]/80 hover:bg-[#072430] text-neutral-300 hover:text-white'
+                    : 'border-neutral-800 bg-[#121A1E]/80 hover:bg-[#162228] text-neutral-300 hover:text-white'
                 }`}
               >
                 <div className="flex items-center justify-between gap-2">
@@ -421,6 +508,11 @@ export const HarmonicPlayer: React.FC = () => {
                   {isBinaural && (
                     <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40 shrink-0">
                       03:32
+                    </span>
+                  )}
+                  {isOrchestral && (
+                    <span className="text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shrink-0">
+                      03:36
                     </span>
                   )}
                 </div>
@@ -463,7 +555,7 @@ export const HarmonicPlayer: React.FC = () => {
                 {is440 && (
                   <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
                     <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-neutral-900/90 border-neutral-600/60 text-neutral-200">
-                      <CheckCircle className="w-3 h-3 text-stone-400 shrink-0" />
+                      <CheckCircle className="w-3 h-3 text-[#00FF9D] shrink-0" />
                       <span>MP3 Intégré (03:32)</span>
                     </span>
 
@@ -494,7 +586,7 @@ export const HarmonicPlayer: React.FC = () => {
                 {is432 && (
                   <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
                     <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-emerald-950/80 border-emerald-500/50 text-emerald-300">
-                      <CheckCircle className="w-3 h-3 text-[#10B981] shrink-0" />
+                      <CheckCircle className="w-3 h-3 text-[#00FF9D] shrink-0" />
                       <span>MP3 Intégré (03:36)</span>
                     </span>
 
@@ -525,7 +617,7 @@ export const HarmonicPlayer: React.FC = () => {
                 {isBinaural && (
                   <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
                     <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-purple-950/80 border-purple-500/50 text-purple-300">
-                      <CheckCircle className="w-3 h-3 text-purple-400 shrink-0" />
+                      <CheckCircle className="w-3 h-3 text-[#00FF9D] shrink-0" />
                       <span>MP3 Intégré (03:32)</span>
                     </span>
 
@@ -560,6 +652,45 @@ export const HarmonicPlayer: React.FC = () => {
                     </span>
                   </div>
                 )}
+
+                {isOrchestral && (
+                  <div className="mt-1.5 pl-6 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-cyan-950/80 border-cyan-500/50 text-cyan-300">
+                      <CheckCircle className="w-3 h-3 text-[#00E5FF] shrink-0" />
+                      <span>MP3 Intégré (03:36)</span>
+                    </span>
+
+                    <label
+                      htmlFor="freq-orchestral-file-input"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-neutral-900/90 hover:bg-neutral-800 text-neutral-300 hover:text-cyan-300 border border-neutral-700/60 cursor-pointer transition-colors"
+                      title="Glisser ou choisir un autre MP3 pour cette case Orchestral"
+                    >
+                      <Upload className="w-2.5 h-2.5" />
+                      <span>{customOrchestralAudioUrl ? 'Remplacé' : 'Glisser / Remplacer'}</span>
+                    </label>
+                    <input
+                      id="freq-orchestral-file-input"
+                      ref={fileOrchestralInputRef}
+                      type="file"
+                      accept="audio/mp3,audio/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) {
+                          handleOrchestralFile(e.target.files[0]);
+                        }
+                      }}
+                    />
+
+                    <span
+                      className="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded border bg-cyan-950/60 border-cyan-500/40 text-cyan-300"
+                      title="Spatialisation holophonique 3D"
+                    >
+                      <Sparkles className="w-2.5 h-2.5 text-cyan-400 shrink-0" />
+                      <span>3D Holophonique</span>
+                    </span>
+                  </div>
+                )}
               </button>
             );
           })}
@@ -567,11 +698,11 @@ export const HarmonicPlayer: React.FC = () => {
       </div>
 
       {/* Real-time Spectrum Visualizer & EBU R128 Meters */}
-      <div className="space-y-1.5 bg-[#100E0C] border border-amber-950/40 rounded-xl p-2.5">
-        <div className="flex items-center justify-between text-[10px] font-mono text-stone-400">
+      <div className="space-y-1.5 bg-[#090F12] border border-neutral-800/80 rounded-xl p-2.5">
+        <div className="flex items-center justify-between text-[10px] font-mono text-neutral-400">
           <span className="flex items-center gap-1">
-            <Sliders className="w-3 h-3 text-amber-400" />
-            FFT 4096 / R128: <strong className="text-amber-300">{measuredLufs} LUFS</strong>
+            <Sliders className="w-3 h-3 text-[#00FF9D]" />
+            FFT 4096 / R128: <strong className="text-[#00FF9D]">{measuredLufs} LUFS</strong>
           </span>
           <span>
             True Peak: <strong className="text-amber-400">{peakDbtp} dBTP</strong>
@@ -581,7 +712,7 @@ export const HarmonicPlayer: React.FC = () => {
           ref={canvasRef}
           width={280}
           height={24}
-          className="w-full h-6 rounded bg-black/60 block"
+          className="w-full h-6 rounded bg-black/40 block"
         />
       </div>
 
@@ -607,9 +738,9 @@ export const HarmonicPlayer: React.FC = () => {
               value={currentTime}
               onChange={(e) => seek(parseFloat(e.target.value))}
               aria-label="Position de lecture"
-              className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-amber-500 z-10"
+              className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-[#00FF9D] z-10"
               style={{
-                background: `linear-gradient(to right, #F59E0B ${progressPercent}%, #292524 ${progressPercent}%)`,
+                background: `linear-gradient(to right, #00FF9D ${progressPercent}%, #262626 ${progressPercent}%)`,
               }}
             />
           </div>
@@ -622,7 +753,7 @@ export const HarmonicPlayer: React.FC = () => {
             <button
               id="btn-toggle-mute"
               onClick={() => setVolume(volume > 0 ? 0 : 0.85)}
-              className="hover:text-amber-400 transition-colors cursor-pointer p-1"
+              className="hover:text-[#00FF9D] transition-colors cursor-pointer p-1"
               aria-label={volume === 0 ? 'Activer le son' : 'Couper le son'}
             >
               {volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -636,7 +767,7 @@ export const HarmonicPlayer: React.FC = () => {
               value={volume}
               onChange={(e) => setVolume(parseFloat(e.target.value))}
               aria-label="Volume audio"
-              className="w-12 sm:w-16 h-1 bg-stone-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+              className="w-12 sm:w-16 h-1 bg-neutral-700 rounded-lg appearance-none cursor-pointer accent-[#00FF9D]"
             />
           </div>
 
@@ -657,12 +788,12 @@ export const HarmonicPlayer: React.FC = () => {
               id="btn-player-giant-play"
               onClick={togglePlay}
               aria-label={isPlaying ? 'Mettre en pause' : 'Lancer la lecture'}
-              className="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-500 to-amber-400 text-stone-950 shadow-[0_0_30px_rgba(245,158,11,0.6)] hover:shadow-[0_0_40px_rgba(245,158,11,0.8)] flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
+              className="w-16 h-16 rounded-full bg-[#00FF9D] text-black shadow-[0_0_30px_rgba(0,255,157,0.7)] flex items-center justify-center transition-all duration-200 hover:scale-105 active:scale-95 cursor-pointer"
             >
               {isPlaying ? (
-                <Pause className="w-7 h-7 fill-stone-950" />
+                <Pause className="w-7 h-7 fill-black" />
               ) : (
-                <Play className="w-7 h-7 fill-stone-950 ml-1" />
+                <Play className="w-7 h-7 fill-black ml-1" />
               )}
             </button>
 
@@ -675,6 +806,16 @@ export const HarmonicPlayer: React.FC = () => {
             >
               <SkipForward className="w-4 h-4 fill-current" />
             </button>
+
+            <button
+              id="btn-player-restart"
+              onClick={restartPlayback}
+              aria-label="Redémarrer le morceau au début"
+              title="Redémarrer au début (0:00)"
+              className="w-9 h-9 rounded-full bg-neutral-800/90 hover:bg-neutral-700 active:scale-95 text-neutral-300 hover:text-[#00FF9D] flex items-center justify-center transition-all cursor-pointer border border-neutral-700/60 shadow-sm group"
+            >
+              <RotateCcw className="w-4 h-4 group-hover:-rotate-45 transition-transform" />
+            </button>
           </div>
 
           {/* Queue & Auto-play toggles */}
@@ -686,11 +827,11 @@ export const HarmonicPlayer: React.FC = () => {
               title={autoPlayNext ? 'Lecture auto : Activée' : 'Lecture auto : Désactivée'}
               className={`p-2 rounded-lg border transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono ${
                 autoPlayNext
-                  ? 'border-amber-500/50 bg-amber-500/10 text-amber-300'
+                  ? 'border-[#00FF9D]/50 bg-[#00FF9D]/10 text-[#00FF9D]'
                   : 'border-neutral-800 bg-neutral-900/60 text-neutral-500 hover:text-neutral-300'
               }`}
             >
-              <Repeat className={`w-3.5 h-3.5 ${autoPlayNext ? 'text-amber-400' : 'text-neutral-500'}`} />
+              <Repeat className={`w-3.5 h-3.5 ${autoPlayNext ? 'text-[#00FF9D]' : 'text-neutral-500'}`} />
             </button>
 
             <button
@@ -700,13 +841,13 @@ export const HarmonicPlayer: React.FC = () => {
               title="File d'attente (Playlist)"
               className={`p-2 rounded-lg border transition-all cursor-pointer flex items-center gap-1 text-[11px] font-mono relative ${
                 isQueueOpen || queue.length > 0
-                  ? 'border-amber-500/50 bg-amber-950/30 text-amber-300'
+                  ? 'border-[#00FF9D]/50 bg-[#0A1B14] text-[#00FF9D]'
                   : 'border-neutral-800 bg-neutral-900/60 text-neutral-400 hover:text-white'
               }`}
             >
               <ListMusic className="w-3.5 h-3.5" />
               {queue.length > 0 && (
-                <span className="bg-amber-500 text-stone-950 text-[9px] font-bold px-1.5 py-0.2 rounded-full">
+                <span className="bg-[#00FF9D] text-black text-[9px] font-bold px-1.5 py-0.2 rounded-full">
                   {queue.length}
                 </span>
               )}
@@ -718,11 +859,11 @@ export const HarmonicPlayer: React.FC = () => {
         {isQueueOpen && (
           <div
             id="player-queue-drawer"
-            className="bg-[#100E0C] border border-amber-950/40 rounded-xl p-3 space-y-2 text-xs font-mono animate-fadeIn"
+            className="bg-[#090F12] border border-neutral-800 rounded-xl p-3 space-y-2 text-xs font-mono animate-fadeIn"
           >
             <div className="flex items-center justify-between pb-1.5 border-b border-neutral-800">
               <div className="flex items-center gap-1.5 text-white font-bold">
-                <ListMusic className="w-3.5 h-3.5 text-amber-400" />
+                <ListMusic className="w-3.5 h-3.5 text-[#00FF9D]" />
                 <span>File d'attente ({queue.length})</span>
               </div>
               <div className="flex items-center gap-2">
@@ -751,7 +892,7 @@ export const HarmonicPlayer: React.FC = () => {
               <button
                 onClick={toggleAutoPlayNext}
                 className={`font-bold uppercase cursor-pointer ${
-                  autoPlayNext ? 'text-amber-400' : 'text-neutral-500'
+                  autoPlayNext ? 'text-[#00FF9D]' : 'text-neutral-500'
                 }`}
               >
                 {autoPlayNext ? 'Activée (Automatique)' : 'Désactivée'}
@@ -774,7 +915,7 @@ export const HarmonicPlayer: React.FC = () => {
                     >
                       <span className="text-neutral-500 text-[10px]">#{idx + 1}</span>
                       <div className="truncate">
-                        <div className="font-sans font-medium text-white truncate text-xs group-hover:text-amber-400 transition-colors">
+                        <div className="font-sans font-medium text-white truncate text-xs group-hover:text-[#00FF9D] transition-colors">
                           {qTrack.title}
                         </div>
                         <div className="text-[10px] text-neutral-400">
