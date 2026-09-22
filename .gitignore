@@ -10,3 +10,36 @@ __pycache__/
 *.pyc
 build_env/
 C:*
+
+# Non-harmonic workspace folders on D:/
+/$RECYCLE.BIN/
+/01_OPERATIONS_PRO/
+/02_DEVELOPPEMENT_PERSO/
+/03_INFRASTRUCTURE_SYSTEME/
+/AEGIS-SOMA/
+/Application/
+/Berb_Deployment_agentic/
+/FOUND.000/
+/FOUND.001/
+/FOUND.002/
+/Photos/
+/Setup_Th3_App.ps1
+/System Volume Information/
+/THIRTY3_ARCHIVE/
+/Temp/
+/Th3 Vault/
+/Th3-Thirty3_App/
+/Users/
+/Vault/
+/Vault_CLEANUP_BACKUP/
+/Vault_Cleanup.ps1
+/_memory_system_backup/
+/_mikeg_backup/
+/_vault_content_backup/
+/_vault_git/
+/dev/
+/hostinger-recovery-codes.txt
+/obsidian_gemini_scribe_converter.zip
+/obsidian_gemini_scribe_converter/
+/tmp/
+

@@ -159,6 +159,11 @@ class HarmonicDspProcessor extends AudioWorkletProcessor {
         a2 * Math.cos((4 * Math.PI * n) / 4095) -
         a3 * Math.cos((6 * Math.PI * n) / 4095);
     }
+
+    // True Peak 4x Oversampling State (ITU-R BS.1770-4 compliant)
+    this.tpHistL = new Float32Array(4);
+    this.tpHistR = new Float32Array(4);
+    this.tpHistIdx = 0;
     
     this.port.onmessage = (event) => {
       if (event.data && event.data.type === 'SET_MODE') {
@@ -265,17 +270,43 @@ class HarmonicDspProcessor extends AudioWorkletProcessor {
 
       this.writeIndex = (this.writeIndex + 1) % this.bufferSize;
 
-      // Limiteur True Peak avec seuil strict à -1.0 dBTP (sans allocation, plafonnement asymptotique garanti)
-      const knee = this.peakThreshold * 0.95;
-      if (Math.abs(pL) > knee) {
-        const excess = Math.abs(pL) - knee;
-        const headroom = this.peakThreshold - knee;
-        pL = Math.sign(pL) * (knee + headroom * Math.tanh(excess / headroom));
+      // Limiteur True Peak 4x suréchantillonné (ITU-R BS.1770-4 / Lagrange cubique)
+      const hIdx = this.tpHistIdx;
+      this.tpHistL[hIdx] = pL;
+      this.tpHistR[hIdx] = pR;
+      this.tpHistIdx = (hIdx + 1) & 3;
+
+      const y0L = this.tpHistL[(hIdx + 1) & 3];
+      const y1L = this.tpHistL[(hIdx + 2) & 3];
+      const y2L = this.tpHistL[(hIdx + 3) & 3];
+      const y3L = this.tpHistL[hIdx];
+
+      const y0R = this.tpHistR[(hIdx + 1) & 3];
+      const y1R = this.tpHistR[(hIdx + 2) & 3];
+      const y2R = this.tpHistR[(hIdx + 3) & 3];
+      const y3R = this.tpHistR[hIdx];
+
+      let peakL = Math.abs(pL);
+      let peakR = Math.abs(pR);
+
+      for (let frac = 1; frac <= 3; frac++) {
+        const t = frac * 0.25;
+        const c0 = -t * (t - 1.0) * (t - 2.0) / 6.0;
+        const c1 = (t + 1.0) * (t - 1.0) * (t - 2.0) / 2.0;
+        const c2 = -(t + 1.0) * t * (t - 2.0) / 2.0;
+        const c3 = (t + 1.0) * t * (t - 1.0) / 6.0;
+
+        const interpL = Math.abs(c0 * y0L + c1 * y1L + c2 * y2L + c3 * y3L);
+        const interpR = Math.abs(c0 * y0R + c1 * y1R + c2 * y2R + c3 * y3R);
+        if (interpL > peakL) peakL = interpL;
+        if (interpR > peakR) peakR = interpR;
       }
-      if (Math.abs(pR) > knee) {
-        const excess = Math.abs(pR) - knee;
-        const headroom = this.peakThreshold - knee;
-        pR = Math.sign(pR) * (knee + headroom * Math.tanh(excess / headroom));
+
+      if (peakL > this.peakThreshold) {
+        pL *= this.peakThreshold / peakL;
+      }
+      if (peakR > this.peakThreshold) {
+        pR *= this.peakThreshold / peakR;
       }
 
       outL[i] = pL;
