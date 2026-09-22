@@ -24,6 +24,7 @@ export interface MasterArchiveItem {
   isCustomUploaded?: boolean;
   customAudioUrl?: string;
   fileName?: string;
+  physicalLocation?: string;
 }
 
 export interface Track {
@@ -45,6 +46,7 @@ export interface Track {
   audioUrl: string;
   spectralFingerprint?: string;
   masterArchives?: MasterArchiveItem[];
+  physicalLocation?: string;
 }
 
 export interface UserSession {
