@@ -167,42 +167,42 @@ export const AiAudioMasteringSuiteModal: React.FC<AiAudioMasteringSuiteModalProp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col bg-slate-900 border border-emerald-500/40 rounded-2xl shadow-2xl shadow-emerald-500/10 overflow-hidden text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      <div className="relative w-full max-w-4xl max-h-[92vh] flex flex-col bg-[#000000] border border-purple-500/40 rounded-2xl shadow-2xl shadow-purple-500/10 overflow-hidden text-neutral-100">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/60">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-[#050505]">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400">
+            <div className="p-2.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400">
               <Wand2 className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl font-bold tracking-tight text-white flex items-center gap-2">
                 Studio IA Pro — Triade MCP Audio
-                <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono">
+                <span className="text-xs px-2 py-0.5 rounded-full bg-[#D4AF37]/20 border border-[#D4AF37]/40 text-[#FDE047] font-mono">
                   YuE • BS-RoFormer • ACE-Step
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-neutral-400">
                 Génération complète, séparation de sources, mastering par stems & accordage 432 Hz
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+            className="p-2 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Onglets */}
-        <div className="flex border-b border-slate-800 bg-slate-950/30 px-6 pt-2">
+        <div className="flex border-b border-neutral-800 bg-[#050505] px-6 pt-2">
           <button
             onClick={() => setActiveTab('yue')}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition ${
               activeTab === 'yue'
-                ? 'border-emerald-400 text-emerald-400 bg-emerald-500/10 rounded-t-lg'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-purple-400 text-purple-400 bg-purple-500/10 rounded-t-lg'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <Music className="w-4 h-4" />
@@ -212,8 +212,8 @@ export const AiAudioMasteringSuiteModal: React.FC<AiAudioMasteringSuiteModalProp
             onClick={() => setActiveTab('roformer')}
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition ${
               activeTab === 'roformer'
-                ? 'border-indigo-400 text-indigo-400 bg-indigo-500/10 rounded-t-lg'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                ? 'border-[#D4AF37] text-[#D4AF37] bg-[#D4AF37]/10 rounded-t-lg'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <Scissors className="w-4 h-4" />
@@ -224,7 +224,7 @@ export const AiAudioMasteringSuiteModal: React.FC<AiAudioMasteringSuiteModalProp
             className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition ${
               activeTab === 'acestep'
                 ? 'border-amber-400 text-amber-400 bg-amber-500/10 rounded-t-lg'
-                : 'border-transparent text-slate-400 hover:text-slate-200'
+                : 'border-transparent text-neutral-400 hover:text-neutral-200'
             }`}
           >
             <Layers className="w-4 h-4" />
@@ -237,40 +237,40 @@ export const AiAudioMasteringSuiteModal: React.FC<AiAudioMasteringSuiteModalProp
           {/* TAB 1: YuE */}
           {activeTab === 'yue' && (
             <div className="space-y-4">
-              <div className="p-3.5 bg-emerald-950/30 border border-emerald-500/30 rounded-xl text-xs text-emerald-200/90 leading-relaxed">
+              <div className="p-3.5 bg-purple-950/30 border border-purple-500/30 rounded-xl text-xs text-purple-200/90 leading-relaxed">
                 <strong>YuE Foundation Model :</strong> Génère des chansons complètes avec séparation
                 automatique en pistes vocales et instrumentales, application de l'accordage naturel
-                432 Hz et export permanent dans <code className="text-emerald-300">C:\Users\th3th\Music\thirty3</code>.
+                432 Hz et export permanent dans <code className="text-[#D4AF37]">C:\Users\th3th\Music\thirty3</code>.
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
                     Paroles Structurées ([Verse], [Chorus])
                   </label>
                   <textarea
                     rows={6}
                     value={yueLyrics}
                     onChange={(e) => setYueLyrics(e.target.value)}
-                    className="w-full bg-slate-950/80 border border-slate-700 rounded-xl p-3 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none font-mono"
+                    className="w-full bg-neutral-950/80 border border-neutral-800 rounded-xl p-3 text-xs text-neutral-200 focus:border-purple-500 focus:outline-none font-mono"
                   />
                 </div>
 
                 <div className="space-y-3">
                   <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                      Style & Ambiance Musicale (Genre Prompt)
+                    <label className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
+                       Style & Ambiance Musicale (Genre Prompt)
                     </label>
                     <input
                       type="text"
                       value={yueGenre}
                       onChange={(e) => setYueGenre(e.target.value)}
-                      className="w-full bg-slate-950/80 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 focus:border-emerald-500 focus:outline-none mt-1"
+                      className="w-full bg-neutral-950/80 border border-neutral-800 rounded-xl p-2.5 text-xs text-neutral-200 focus:border-purple-500 focus:outline-none mt-1"
                     />
                   </div>
 
                   <div>
-                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300">
+                    <label className="text-xs font-semibold uppercase tracking-wider text-neutral-300">
                       Durée : {yueDuration} secondes
                     </label>
                     <input
@@ -280,26 +280,26 @@ export const AiAudioMasteringSuiteModal: React.FC<AiAudioMasteringSuiteModalProp
                       step={5}
                       value={yueDuration}
                       onChange={(e) => setYueDuration(Number(e.target.value))}
-                      className="w-full accent-emerald-500 mt-1"
+                      className="w-full accent-purple-500 mt-1"
                     />
                   </div>
 
                   <div className="pt-2 space-y-2">
-                    <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                    <label className="flex items-center gap-2 text-xs text-neutral-300 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={yueApply432}
                         onChange={(e) => setYueApply432(e.target.checked)}
-                        className="rounded accent-emerald-500"
+                        className="rounded accent-purple-500"
                       />
                       Réaccordage Naturel 432 Hz Verdi (Ratio 54/55)
                     </label>
-                    <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+                    <label className="flex items-center gap-2 text-xs text-neutral-300 cursor-pointer">
                       <input
                         type="checkbox"
                         checked={yueApplyPhi}
                         onChange={(e) => setYueApplyPhi(e.target.checked)}
-                        className="rounded accent-emerald-500"
+                        className="rounded accent-[#D4AF37]"
                       />
                       Modulation Binaurale Phi (1.618 Hz) + Porteuse Sacrée 528 Hz
                     </label>
@@ -311,7 +311,7 @@ export const AiAudioMasteringSuiteModal: React.FC<AiAudioMasteringSuiteModalProp
                 <button
                   onClick={handleRunYuE}
                   disabled={isProcessing}
-                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-sm shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
+                  className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-[#D4AF37] hover:opacity-90 text-white font-semibold text-sm shadow-lg shadow-purple-600/20 flex items-center justify-center gap-2 transition disabled:opacity-50"
                 >
                   {isProcessing ? (
                     <>
@@ -320,7 +320,7 @@ export const AiAudioMasteringSuiteModal: React.FC<AiAudioMasteringSuiteModalProp
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5" />
+                      <Sparkles className="w-5 h-5 text-[#FDE047]" />
                       Générer la Chanson Complète avec YuE
                     </>
                   )}
@@ -482,31 +482,31 @@ export const AiAudioMasteringSuiteModal: React.FC<AiAudioMasteringSuiteModalProp
 
           {/* Résultat & Télémétrie */}
           {lastResult && (
-            <div className="p-4 bg-slate-950/80 border border-emerald-500/40 rounded-xl space-y-3 animate-in fade-in">
+            <div className="p-4 bg-neutral-950/80 border border-purple-500/40 rounded-xl space-y-3 animate-in fade-in">
               <div className="flex items-center justify-between">
-                <span className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                  <CheckCircle2 className="w-4 h-4" /> Opération Réussie ({lastResult.engine || 'Moteur MCP'})
+                <span className="flex items-center gap-2 text-xs font-bold text-[#FDE047]">
+                  <CheckCircle2 className="w-4 h-4 text-[#D4AF37]" /> Opération Réussie ({lastResult.engine || 'Moteur MCP'})
                 </span>
-                <span className="text-[11px] text-slate-400 font-mono">
+                <span className="text-[11px] text-neutral-400 font-mono">
                   Sync : C:\Users\th3th\Music\thirty3
                 </span>
               </div>
 
               {lastResult.artifacts && (
-                <div className="p-3 bg-slate-900 rounded-lg text-xs space-y-1.5 font-mono text-slate-300">
+                <div className="p-3 bg-black rounded-lg text-xs space-y-1.5 font-mono text-neutral-300 border border-neutral-800">
                   {Object.entries(lastResult.artifacts).map(([key, val]) => (
                     <div key={key} className="truncate">
-                      <span className="text-emerald-400">{key}:</span> {String(val)}
+                      <span className="text-[#D4AF37]">{key}:</span> {String(val)}
                     </div>
                   ))}
                 </div>
               )}
 
               {lastResult.stem_files && (
-                <div className="p-3 bg-slate-900 rounded-lg text-xs space-y-1.5 font-mono text-slate-300">
+                <div className="p-3 bg-black rounded-lg text-xs space-y-1.5 font-mono text-neutral-300 border border-neutral-800">
                   {Object.entries(lastResult.stem_files).map(([stem, file]) => (
                     <div key={stem} className="truncate">
-                      <span className="text-indigo-400">{stem}:</span> {String(file)}
+                      <span className="text-purple-400">{stem}:</span> {String(file)}
                     </div>
                   ))}
                 </div>

@@ -113,9 +113,9 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
           onClick={handleCopyLink}
           title="Copier le lien avec fréquence active"
           aria-label="Copier le lien avec fréquence active"
-          className="p-1.5 rounded-lg bg-black/60 hover:bg-[#00FF9D]/20 border border-white/10 hover:border-[#00FF9D]/50 text-gray-300 hover:text-[#00FF9D] transition-all flex items-center justify-center cursor-pointer"
+          className="p-1.5 rounded-lg bg-black/60 hover:bg-[#D4AF37]/20 border border-white/10 hover:border-[#D4AF37]/50 text-gray-300 hover:text-[#D4AF37] transition-all flex items-center justify-center cursor-pointer"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-[#00FF9D]" /> : <Link2 className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-3.5 h-3.5 text-[#D4AF37]" /> : <Link2 className="w-3.5 h-3.5" />}
         </button>
       </div>
     );
@@ -151,12 +151,12 @@ export const SocialShareBar: React.FC<SocialShareBarProps> = ({
       <button
         id="widget-copy-link"
         onClick={handleCopyLink}
-        className="flex items-center gap-1.5 bg-black/50 hover:bg-white/10 border border-white/10 hover:border-[#00FF9D]/40 text-gray-300 hover:text-[#00FF9D] px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+        className="flex items-center gap-1.5 bg-black/50 hover:bg-white/10 border border-white/10 hover:border-[#D4AF37]/40 text-gray-300 hover:text-[#D4AF37] px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
       >
         {copied ? (
           <>
-            <Check className="w-3.5 h-3.5 text-[#00FF9D]" />
-            <span className="text-[#00FF9D] font-bold">Lien copié !</span>
+            <Check className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span className="text-[#D4AF37] font-bold">Lien copié !</span>
           </>
         ) : (
           <>

@@ -94,10 +94,10 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
       const isPhi = activeFreq.includes('phi') || activeFreq.includes('binaural');
       const isOrchestral = activeFreq.includes('orchestral');
       ctx.strokeStyle = isOrchestral
-        ? 'rgba(0, 229, 255, 0.8)'
+        ? 'rgba(217, 70, 239, 0.8)'
         : isPhi
-        ? 'rgba(245, 158, 11, 0.7)'
-        : 'rgba(0, 255, 157, 0.7)';
+        ? 'rgba(245, 158, 11, 0.75)'
+        : 'rgba(212, 175, 55, 0.75)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
 
@@ -192,7 +192,7 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
   return (
     <div
       id="harmonic-embedded-widget"
-      className={`bg-[#0B1313] border border-[#00FF9D]/30 rounded-xl p-3.5 text-gray-100 font-mono shadow-[0_0_30px_rgba(0,0,0,0.8)] relative flex flex-col justify-between select-none ${className}`}
+      className={`bg-[#000000] border border-[#D4AF37]/30 rounded-xl p-3.5 text-gray-100 font-mono shadow-[0_0_30px_rgba(0,0,0,0.8)] relative flex flex-col justify-between select-none ${className}`}
       style={{ minHeight: '220px', maxWidth: '100%' }}
     >
       <audio
@@ -206,7 +206,7 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
       {/* Ligne 1 : En-tête du morceau + Fréquence active + Boutons de partage Social (Twitter/X & Facebook) */}
       <div className="flex items-center justify-between gap-2 pb-2 border-b border-white/10">
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="p-1.5 rounded bg-[#00FF9D]/10 border border-[#00FF9D]/30 text-[#00FF9D] shrink-0">
+          <div className="p-1.5 rounded bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] shrink-0">
             <Waves className="w-3.5 h-3.5" />
           </div>
           <div className="truncate">
@@ -214,7 +214,7 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
               <span>{track.title}</span>
               <span className="text-[10px] text-gray-400 font-normal">• {track.artist}</span>
             </div>
-            <div className="text-[10px] text-[#00FF9D] flex items-center gap-1">
+            <div className="text-[10px] text-[#D4AF37] flex items-center gap-1">
               <span>{FREQ_LABELS[activeFreq] || activeFreq}</span>
               <span className="text-gray-500">• EBU R128</span>
             </div>
@@ -261,7 +261,7 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
                 onClick={() => handleFreqChange(btn.id)}
                 className={`text-[10px] font-bold px-2 py-0.5 rounded border transition-all cursor-pointer ${
                   isActive
-                    ? 'bg-[#00FF9D] text-black border-[#00FF9D] shadow-[0_0_10px_rgba(0,255,157,0.4)]'
+                    ? 'bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-black border-[#D4AF37] shadow-[0_0_10px_rgba(212,175,55,0.4)]'
                     : 'bg-black/60 text-gray-400 border-white/10 hover:border-white/30 hover:text-white'
                 }`}
               >
@@ -289,7 +289,7 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
           value={currentTime}
           onChange={handleSeek}
           aria-label="Position temporelle"
-          className="flex-1 h-1 bg-black/50 rounded-lg appearance-none cursor-pointer accent-[#00FF9D]"
+          className="flex-1 h-1 bg-black/50 rounded-lg appearance-none cursor-pointer accent-[#D4AF37]"
         />
         <span>{formatTime(track.durationSeconds)}</span>
       </div>
@@ -300,7 +300,7 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
           <button
             id="widget-play-toggle-btn"
             onClick={togglePlay}
-            className="bg-[#00FF9D] hover:bg-[#00FF9D]/90 text-black p-2 rounded-lg flex items-center justify-center font-bold transition-all shadow-[0_0_12px_rgba(0,255,157,0.3)] cursor-pointer"
+            className="bg-gradient-to-tr from-[#D4AF37] to-[#F59E0B] hover:opacity-90 text-black p-2 rounded-lg flex items-center justify-center font-bold transition-all shadow-[0_0_12px_rgba(212,175,55,0.4)] cursor-pointer"
             aria-label={isPlaying ? 'Pause' : 'Lecture'}
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
@@ -330,7 +330,7 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
                 }
               }}
               aria-label="Volume du widget"
-              className="w-14 h-1 bg-black/50 rounded-lg appearance-none cursor-pointer accent-[#00FF9D]"
+              className="w-14 h-1 bg-black/50 rounded-lg appearance-none cursor-pointer accent-[#D4AF37]"
             />
           </div>
         </div>
@@ -339,7 +339,7 @@ export const EmbeddedPlayerWidget: React.FC<EmbeddedPlayerWidgetProps> = ({
           <span className="text-[10px] text-gray-500 tracking-wider uppercase hidden xs:inline">
             HARMONIC STUDIO 432HZ
           </span>
-          <span className="text-[9px] bg-[#00FF9D]/10 text-[#00FF9D] border border-[#00FF9D]/20 px-1.5 py-0.5 rounded font-bold">
+          <span className="text-[9px] bg-[#D4AF37]/15 text-[#FDE047] border border-[#D4AF37]/30 px-1.5 py-0.5 rounded font-bold">
             RFC 7233
           </span>
         </div>

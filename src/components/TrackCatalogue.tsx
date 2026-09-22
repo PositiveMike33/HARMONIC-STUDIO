@@ -82,7 +82,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
       {/* Section Header */}
       <div className="flex items-center justify-between pb-1">
         <div className="flex items-center gap-2">
-          <span className="text-[#00FF9D] text-lg">🎵</span>
+          <span className="text-[#D4AF37] text-lg">🎵</span>
           <h2 className="text-base md:text-lg font-bold text-white tracking-tight">
             Catalogue Harmonique Actif (Cliquez pour écouter)
           </h2>
@@ -95,18 +95,18 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
             title="Filtrer uniquement les morceaux favoris"
             className={`flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border font-mono transition-all cursor-pointer ${
               filterFavoritesOnly
-                ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 shadow-[0_0_12px_rgba(244,63,94,0.3)]'
+                ? 'bg-purple-900/40 text-purple-300 border-purple-500/50 shadow-[0_0_12px_rgba(168,85,247,0.3)]'
                 : 'bg-white/5 text-neutral-400 hover:text-white border-white/10 hover:bg-white/10'
             }`}
           >
-            <Heart className={`w-3.5 h-3.5 ${filterFavoritesOnly || favorites.length > 0 ? 'fill-rose-500 text-rose-500' : ''}`} />
+            <Heart className={`w-3.5 h-3.5 ${filterFavoritesOnly || favorites.length > 0 ? 'fill-purple-400 text-purple-400' : ''}`} />
             <span>Favoris ({favorites.length})</span>
           </button>
 
           <button
             id="btn-refresh-catalogue"
             onClick={handleRefresh}
-            className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-[#00FF9D] transition-colors cursor-pointer font-mono"
+            className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-[#D4AF37] transition-colors cursor-pointer font-mono"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span>Actualiser</span>
@@ -117,7 +117,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
       {/* Tracks List */}
       <div className="space-y-3" role="region" aria-label="Liste des pistes harmoniques">
         {filterFavoritesOnly && tracks.filter((t) => favorites.includes(t.id)).length === 0 && (
-          <div className="p-8 text-center bg-[#0F171B] border border-dashed border-neutral-800 rounded-xl">
+          <div className="p-8 text-center bg-[#000000] border border-dashed border-neutral-800 rounded-xl">
             <Heart className="w-8 h-8 text-neutral-600 mx-auto mb-2" />
             <p className="text-sm text-neutral-300 font-medium">Aucun morceau dans vos favoris</p>
             <p className="text-xs text-neutral-500 mt-1">
@@ -125,7 +125,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
             </p>
             <button
               onClick={() => setFilterFavoritesOnly(false)}
-              className="mt-3 text-xs text-[#00FF9D] hover:underline font-mono cursor-pointer"
+              className="mt-3 text-xs text-[#D4AF37] hover:underline font-mono cursor-pointer"
             >
               Afficher tout le catalogue
             </button>
@@ -152,8 +152,8 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
               id={`track-card-${track.id}`}
               className={`p-3.5 md:p-4 rounded-xl transition-all duration-200 flex flex-col justify-between ${
                 isCurrent
-                  ? 'bg-[#0B1516] border-2 border-[#00FF9D] shadow-[0_0_20px_rgba(0,255,157,0.2)]'
-                  : 'bg-[#0F171B] border border-neutral-800/80 hover:border-neutral-700'
+                  ? 'bg-[#000000] border-2 border-[#D4AF37] shadow-[0_0_22px_rgba(212,175,55,0.25)]'
+                  : 'bg-[#000000] border border-neutral-800/80 hover:border-purple-900/60'
               }`}
             >
               {/* Top Row: Info and Actions */}
@@ -172,7 +172,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                     aria-label={`Écouter ${track.title}`}
                     className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 transition-transform active:scale-95 cursor-pointer ${
                       isCurrent
-                        ? 'bg-[#00FF9D] text-black shadow-[0_0_12px_rgba(0,255,157,0.5)]'
+                        ? 'bg-gradient-to-tr from-[#D4AF37] to-[#F59E0B] text-black shadow-[0_0_12px_rgba(212,175,55,0.5)]'
                         : 'bg-neutral-800/90 text-neutral-300 hover:text-white hover:bg-neutral-700'
                     }`}
                   >
@@ -201,11 +201,11 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                         aria-label={`Favori ${track.title}`}
                         className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md transition-all cursor-pointer select-none ${
                           isFavorite(track.id)
-                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/50 shadow-[0_0_10px_rgba(244,63,94,0.35)]'
+                            ? 'bg-purple-900/40 text-purple-300 border border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.35)]'
                             : 'bg-white/5 text-neutral-400 hover:text-white border border-white/10 hover:bg-white/10'
                         }`}
                       >
-                        <Heart className={`w-3.5 h-3.5 ${isFavorite(track.id) ? 'fill-rose-500 text-rose-500' : ''}`} />
+                        <Heart className={`w-3.5 h-3.5 ${isFavorite(track.id) ? 'fill-purple-400 text-purple-400' : ''}`} />
                         <span className="font-mono text-[10px]">Favori</span>
                       </button>
 
@@ -221,16 +221,16 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                         }}
                         title={`Redémarrer "${track.title}" au début (0:00)`}
                         aria-label={`Redémarrer ${track.title}`}
-                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md bg-white/5 text-neutral-400 hover:text-[#00FF9D] hover:bg-[#00FF9D]/10 border border-white/10 hover:border-[#00FF9D]/30 transition-all cursor-pointer group select-none"
+                        className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-md bg-white/5 text-neutral-400 hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-white/10 hover:border-[#D4AF37]/30 transition-all cursor-pointer group select-none"
                       >
-                        <RotateCcw className="w-3 h-3 group-hover:-rotate-45 transition-transform text-[#00FF9D]" />
+                        <RotateCcw className="w-3 h-3 group-hover:-rotate-45 transition-transform text-[#D4AF37]" />
                         <span className="font-mono text-[10px]">Restart</span>
                       </button>
 
                       {isTrackUnlocked && (
                         <span
                           id={`badge-unlocked-${track.id}`}
-                          className="inline-flex items-center gap-1 text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-[#00FF9D]/10 text-[#00FF9D] border border-[#00FF9D]/30"
+                          className="inline-flex items-center gap-1 text-[10px] font-mono font-medium px-2 py-0.5 rounded bg-[#D4AF37]/15 text-[#FDE047] border border-[#D4AF37]/30"
                         >
                           <Lock className="w-2.5 h-2.5" />
                           <span>Débloqué Admin</span>
@@ -245,7 +245,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                       <span className="text-neutral-600">•</span>
                       <span className="text-amber-400/90">Pitch shift {track.pitchShiftCents} cents</span>
                       <span className="text-neutral-600">•</span>
-                      <span className="text-[#00FF9D]/80">EBU R128</span>
+                      <span className="text-[#D4AF37]/80">EBU R128</span>
                     </p>
                     {track.artistBio && (
                       <p className="text-[11px] text-neutral-400 font-sans line-clamp-1 mt-0.5">
@@ -263,11 +263,11 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                     title={`Acheter le coffret 5 remasters de "${track.title}" (${track.priceCad.toFixed(2)} $ CAD)`}
                     className="text-right hidden sm:block cursor-pointer group/price hover:opacity-95 transition-opacity"
                   >
-                    <div className="text-xs font-mono font-bold text-[#00FF9D] group-hover/price:underline">
+                    <div className="text-xs font-mono font-bold text-[#FDE047] group-hover/price:underline">
                       {track.priceCad.toFixed(2)} $ CAD
                     </div>
                     <div className="text-[10px] text-neutral-400 font-mono flex items-center justify-end gap-1">
-                      <span className="text-[#00FF9D]/80">5 Remasters</span>
+                      <span className="text-[#D4AF37]/80">5 Remasters</span>
                       <span className="text-neutral-600">•</span>
                       <span>320k</span>
                     </div>
@@ -283,12 +283,12 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                     }}
                     title="Ajouter à la file d'attente"
                     aria-label={`Ajouter ${track.title} à la file d'attente`}
-                    className="bg-neutral-800/90 hover:bg-neutral-700 active:scale-95 text-neutral-300 hover:text-[#00FF9D] p-2 rounded-lg border border-neutral-700/80 transition-all cursor-pointer flex items-center gap-1 text-xs font-mono"
+                    className="bg-neutral-800/90 hover:bg-neutral-700 active:scale-95 text-neutral-300 hover:text-[#D4AF37] p-2 rounded-lg border border-neutral-700/80 transition-all cursor-pointer flex items-center gap-1 text-xs font-mono"
                   >
                     {queuedNotification === track.id ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-[#00FF9D]" />
-                        <span className="text-[11px] text-[#00FF9D] hidden md:inline">Ajouté</span>
+                        <Check className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        <span className="text-[11px] text-[#D4AF37] hidden md:inline">Ajouté</span>
                       </>
                     ) : (
                       <>
@@ -307,7 +307,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                         playTrack(track);
                       }
                     }}
-                    className="bg-[#00FF9D] hover:bg-[#00e68d] active:scale-95 text-black font-semibold text-xs md:text-sm px-3.5 py-1.5 rounded-lg shadow-[0_0_10px_rgba(0,255,157,0.3)] flex items-center gap-1.5 transition-all cursor-pointer"
+                    className="bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] hover:opacity-90 active:scale-95 text-black font-semibold text-xs md:text-sm px-3.5 py-1.5 rounded-lg shadow-[0_0_12px_rgba(212,175,55,0.35)] flex items-center gap-1.5 transition-all cursor-pointer"
                   >
                     {isCurrentlyPlaying ? (
                       <>
@@ -328,11 +328,11 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
               <div className="mt-3.5 pt-3 border-t border-neutral-800/80 w-full">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-1.5 text-xs font-mono">
-                    <Archive className="w-3.5 h-3.5 text-[#00FF9D]" />
+                    <Archive className="w-3.5 h-3.5 text-[#D4AF37]" />
                     <span className="font-semibold text-white tracking-wide">ARCHIVE DES 5 VERSIONS MASTER</span>
                     <span className="text-neutral-500 hidden md:inline">• Cases prêtes pour vos MP3 remasterisés</span>
                   </div>
-                  <span className="text-[10px] font-mono text-[#00FF9D]/80">
+                  <span className="text-[10px] font-mono text-[#D4AF37]/80">
                     Bascule directe au clic (1 version à la fois)
                   </span>
                 </div>
@@ -372,8 +372,8 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                           onDrop={(e) => handleDropOnMaster(track.id, slot.freq, e)}
                           className={`p-2.5 rounded-lg text-left transition-all duration-150 border-2 border-dashed flex flex-col justify-between cursor-pointer group relative ${
                             isDragOver
-                              ? 'border-[#00FF9D] bg-[#00FF9D]/10 text-white scale-[1.02]'
-                              : 'border-neutral-700/70 bg-[#0d1418]/60 hover:border-[#00FF9D]/60 hover:bg-[#121c22] text-neutral-400 hover:text-neutral-200'
+                              ? 'border-[#D4AF37] bg-[#D4AF37]/10 text-white scale-[1.02]'
+                              : 'border-neutral-700/70 bg-[#000000] hover:border-[#D4AF37]/60 hover:bg-[#0a0a0a] text-neutral-400 hover:text-neutral-200'
                           }`}
                           title={`Case vide : Cliquez ou glissez le MP3 remasterisé ${slot.name} - La lecture démarrera immédiatement`}
                         >
@@ -388,10 +388,10 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                           </div>
 
                           <div className="py-2.5 flex flex-col items-center justify-center text-center">
-                            <div className="w-7 h-7 rounded-full bg-neutral-800/80 group-hover:bg-[#00FF9D]/20 group-hover:text-[#00FF9D] flex items-center justify-center text-neutral-400 transition-colors mb-1">
+                            <div className="w-7 h-7 rounded-full bg-neutral-800/80 group-hover:bg-[#D4AF37]/20 group-hover:text-[#D4AF37] flex items-center justify-center text-neutral-400 transition-colors mb-1">
                               <Plus className="w-3.5 h-3.5" />
                             </div>
-                            <span className="text-[10px] font-mono text-neutral-300 group-hover:text-[#00FF9D] font-medium">
+                            <span className="text-[10px] font-mono text-neutral-300 group-hover:text-[#D4AF37] font-medium">
                               Insérer MP3
                             </span>
                             <span className="text-[9px] text-neutral-400">
@@ -401,7 +401,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
 
                           <div className="pt-1.5 border-t border-neutral-800/70 flex items-center justify-between text-[10px] font-mono text-neutral-400">
                             <span>Non assigné</span>
-                            <span className="text-[#00FF9D]/70 group-hover:text-[#00FF9D] flex items-center gap-0.5 text-[9px]">
+                            <span className="text-[#D4AF37]/70 group-hover:text-[#D4AF37] flex items-center gap-0.5 text-[9px]">
                               <Upload className="w-2.5 h-2.5" />
                               <span>Charger</span>
                             </span>
@@ -431,18 +431,18 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                         onDrop={(e) => handleDropOnMaster(track.id, slot.freq, e)}
                         className={`p-2.5 rounded-lg text-left transition-all duration-150 border flex flex-col justify-between cursor-pointer group relative ${
                           isDragOver
-                            ? 'border-emerald-400 bg-emerald-950/40 text-emerald-200 scale-[1.02]'
+                            ? 'border-[#D4AF37] bg-[#362207]/40 text-[#FDE047] scale-[1.02]'
                             : isThisMasterActive
                             ? slot.freq === 'phi'
                               ? 'bg-[#221605] border-[#F59E0B] shadow-[0_0_16px_rgba(245,158,11,0.35)] text-amber-200 ring-1 ring-[#F59E0B]/40'
                               : slot.freq === 'binaural'
                               ? 'bg-[#1A0B2E] border-purple-500 shadow-[0_0_16px_rgba(168,85,247,0.35)] text-purple-200 ring-1 ring-purple-500/40'
                               : slot.freq === 'orchestral'
-                              ? 'bg-[#031E2A] border-[#00E5FF] shadow-[0_0_16px_rgba(0,229,255,0.35)] text-cyan-200 ring-1 ring-[#00E5FF]/40'
+                              ? 'bg-[#1E0D33] border-purple-400 shadow-[0_0_16px_rgba(192,132,252,0.35)] text-purple-200 ring-1 ring-purple-400/40'
                               : slot.freq === '432'
-                              ? 'bg-[#0A1B14] border-[#00FF9D] shadow-[0_0_16px_rgba(0,255,157,0.3)] text-[#00FF9D] ring-1 ring-[#00FF9D]/40'
+                              ? 'bg-[#1A1104] border-[#D4AF37] shadow-[0_0_16px_rgba(212,175,55,0.35)] text-[#FDE047] ring-1 ring-[#D4AF37]/40'
                               : 'bg-neutral-900 border-neutral-300 shadow-[0_0_16px_rgba(255,255,255,0.2)] text-white ring-1 ring-neutral-300/40'
-                            : 'bg-[#121A1E] border-neutral-700/80 hover:border-neutral-500 hover:bg-[#182329] text-neutral-300'
+                            : 'bg-[#000000] border-neutral-800 hover:border-purple-800/80 hover:bg-[#0A0710] text-neutral-300'
                         }`}
                         title={`Écouter le master ${slot.name} (Bascule directe - 1 seule version à la fois)`}
                       >
@@ -451,14 +451,14 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                             <span>{slot.icon}</span>
                             <span className="truncate">{slot.name}</span>
                           </span>
-                          <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-black/60 text-emerald-400 font-semibold border border-emerald-800/40 shrink-0">
+                          <span className="text-[10px] font-mono px-1 py-0.5 rounded bg-black/60 text-[#FDE047] font-semibold border border-[#D4AF37]/40 shrink-0">
                             {durationStr}
                           </span>
                         </div>
 
                         {fileName ? (
-                          <div className="my-1.5 flex items-center gap-1 text-[10px] text-emerald-300 font-mono truncate bg-emerald-950/50 px-1.5 py-1 rounded border border-emerald-800/50" title={fileName}>
-                            <FileAudio className="w-3 h-3 text-emerald-400 shrink-0" />
+                          <div className="my-1.5 flex items-center gap-1 text-[10px] text-purple-300 font-mono truncate bg-purple-950/40 px-1.5 py-1 rounded border border-purple-800/50" title={fileName}>
+                            <FileAudio className="w-3 h-3 text-purple-400 shrink-0" />
                             <span className="truncate">{fileName}</span>
                           </div>
                         ) : (
@@ -468,7 +468,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                         )}
 
                         <div className="mt-1 pt-1.5 border-t border-neutral-800/80 flex items-center justify-between text-[10px] font-mono">
-                          <div className="flex items-center gap-1 text-emerald-400 text-[10px]">
+                          <div className="flex items-center gap-1 text-[#D4AF37] text-[10px]">
                             <Check className="w-3 h-3" />
                             <span>Prêt</span>
                           </div>
@@ -476,7 +476,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                             <button
                               type="button"
                               onClick={(e) => handleCustomAudioUpload(track.id, slot.freq, e)}
-                              className="text-neutral-400 hover:text-emerald-400 p-0.5 rounded hover:bg-neutral-800 transition-colors"
+                              className="text-neutral-400 hover:text-[#D4AF37] p-0.5 rounded hover:bg-neutral-800 transition-colors"
                               title="Remplacer le fichier MP3"
                             >
                               <Upload className="w-3 h-3" />
@@ -493,7 +493,7 @@ export const TrackCatalogue: React.FC<TrackCatalogueProps> = ({ onOpenCheckout }
                               <X className="w-3 h-3" />
                             </button>
                             {isThisMasterPlaying ? (
-                              <span className="inline-flex items-center gap-1 text-[#00FF9D] font-bold animate-pulse ml-0.5">
+                              <span className="inline-flex items-center gap-1 text-[#D4AF37] font-bold animate-pulse ml-0.5">
                                 <Volume2 className="w-3 h-3" />
                                 <span>En lecture</span>
                               </span>

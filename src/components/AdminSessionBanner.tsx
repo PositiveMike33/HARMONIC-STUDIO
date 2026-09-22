@@ -22,7 +22,7 @@ export const AdminSessionBanner: React.FC = () => {
             </h2>
             <span
               id="badge-zero-payment"
-              className="bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/40 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full"
+              className="bg-[#D4AF37]/20 text-[#FDE047] border border-[#D4AF37]/50 text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full"
             >
               Zéro Paiement Requis
             </span>
@@ -38,11 +38,11 @@ export const AdminSessionBanner: React.FC = () => {
         onClick={toggleAdminUnlock}
         className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-medium font-mono border transition-all cursor-pointer shrink-0 ${
           adminUnlocked
-            ? 'border-[#D97706] text-amber-300 bg-[#362207]/80 hover:bg-[#452b09] shadow-[0_0_12px_rgba(217,119,6,0.3)]'
+            ? 'border-[#D4AF37] text-amber-300 bg-[#362207]/80 hover:bg-[#452b09] shadow-[0_0_12px_rgba(212,175,55,0.3)]'
             : 'border-neutral-700 text-neutral-400 bg-neutral-900 hover:text-white'
         }`}
       >
-        <Check className="w-4 h-4 text-[#00FF9D]" />
+        <Check className="w-4 h-4 text-[#D4AF37]" />
         <span>{adminUnlocked ? '✓ Déblocage Admin Actif' : 'Déverrouiller Admin'}</span>
       </button>
     </div>

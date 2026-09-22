@@ -116,7 +116,7 @@ export default function App() {
     const embedFreq = (urlParams.get('freq') as DSPFrequencyMode) || freqMode;
 
     return (
-      <div className="min-h-screen bg-[#070B0D] p-2 sm:p-4 flex items-center justify-center">
+      <div className="min-h-screen bg-[#000000] p-2 sm:p-4 flex items-center justify-center">
         <EmbeddedPlayerWidget
           trackId={embedTrackId}
           initialFreq={embedFreq}
@@ -173,7 +173,7 @@ export default function App() {
           const dataArray = new Uint8Array(bufferLength);
           analyser.getByteFrequencyData(dataArray);
 
-          ctx.fillStyle = '#0B1313';
+          ctx.fillStyle = '#000000';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           const barWidth = (canvas.width / bufferLength) * 2.8;
@@ -182,11 +182,14 @@ export default function App() {
           for (let i = 0; i < bufferLength; i++) {
             const barHeight = (dataArray[i] / 255) * canvas.height;
             if (freqMode === '432_PHI' || freqMode === '432_528_BINAURAL') {
-              ctx.fillStyle = `rgb(${barHeight + 110}, 158, 11)`; // Ambre Or #F59E0B
+              // Radiant Imperial Gold
+              ctx.fillStyle = `rgb(${Math.min(255, 212 + Math.floor(barHeight * 0.3))}, ${Math.min(210, 160 + Math.floor(barHeight * 0.4))}, 55)`;
             } else if (freqMode === '432_ORCHESTRAL') {
-              ctx.fillStyle = `rgb(0, ${Math.min(255, barHeight + 180)}, 255)`; // Cyan Ambiophonique #00E5FF
+              // Orchid & Royal Purple
+              ctx.fillStyle = `rgb(${Math.min(255, 180 + Math.floor(barHeight * 0.4))}, 80, 240)`;
             } else {
-              ctx.fillStyle = `rgb(0, ${barHeight + 120}, 157)`; // Vert Néon #00FF9D
+              // 432_NATURAL: Pourpre Royal & Doré
+              ctx.fillStyle = `rgb(${Math.min(255, 168 + Math.floor(barHeight * 0.5))}, ${Math.min(210, 120 + Math.floor(barHeight * 0.3))}, 240)`;
             }
             ctx.fillRect(x, canvas.height - barHeight, barWidth, barHeight);
             x += barWidth + 1;
@@ -286,30 +289,30 @@ export default function App() {
   const currentCarriers = selectedTrack.carriers[freqMode];
 
   return (
-    <div className="min-h-screen bg-[#0B1313] text-gray-100 font-mono flex flex-col selection:bg-[#00FF9D] selection:text-black">
+    <div className="min-h-screen bg-[#000000] text-gray-100 font-mono flex flex-col selection:bg-[#9333EA]/40 selection:text-[#FDE047]">
       {/* 1. Bandeau de Notification Supérieur */}
-      <div className="bg-black/60 border-b border-white/10 px-6 py-2 flex flex-wrap items-center justify-between text-xs text-gray-400">
+      <div className="bg-[#000000] border-b border-[#D4AF37]/20 px-6 py-2 flex flex-wrap items-center justify-between text-xs text-gray-400">
         <div className="flex items-center gap-2">
-          <span className="inline-block w-2 h-2 rounded-full bg-[#00FF9D] animate-ping" />
-          <span className="text-[#00FF9D] font-bold">HARMONIC STUDIO CLOUD</span>
-          <span>• GOOGLE AI STUDIO CONNECTED</span>
+          <span className="inline-block w-2 h-2 rounded-full bg-[#D4AF37] animate-ping" />
+          <span className="text-[#D4AF37] font-bold tracking-wide">HARMONIC STUDIO CLOUD</span>
+          <span className="text-gray-500">• GOOGLE AI STUDIO CONNECTED</span>
         </div>
         <div className="flex items-center gap-4">
-          <span>DIFFUSION RFC 7233 : 512 KO</span>
-          <span className="text-[#F59E0B]">STRIPE CONNECT 85/15 ACTIF</span>
+          <span className="text-purple-300/80">DIFFUSION RFC 7233 : 512 KO</span>
+          <span className="text-[#F59E0B] font-semibold">STRIPE CONNECT 85/15 ACTIF</span>
         </div>
       </div>
 
       {/* 2. Header Principal */}
-      <header className="h-20 border-b border-white/10 bg-[#0F171B]/95 px-6 flex items-center justify-between backdrop-blur sticky top-0 z-40">
+      <header className="h-20 border-b border-[#D4AF37]/20 bg-[#000000]/95 px-6 flex items-center justify-between backdrop-blur sticky top-0 z-40">
         <div className="flex items-center gap-4">
-          <div className="p-2.5 rounded-lg bg-[#00FF9D]/10 border border-[#00FF9D]/30">
-            <Waves className="w-6 h-6 text-[#00FF9D]" />
+          <div className="p-2.5 rounded-lg bg-[#9333EA]/15 border border-[#D4AF37]/40 shadow-[0_0_15px_rgba(212,175,55,0.2)]">
+            <Waves className="w-6 h-6 text-[#D4AF37]" />
           </div>
           <div>
             <h1 className="text-xl font-black tracking-widest text-white flex items-center gap-2">
-              HARMONIC<span className="text-[#00FF9D]">STUDIO</span>
-              <span className="text-[10px] bg-[#00FF9D]/10 border border-[#00FF9D]/30 text-[#00FF9D] px-2 py-0.5 rounded font-normal">
+              HARMONIC<span className="text-[#D4AF37]">STUDIO</span>
+              <span className="text-[10px] bg-[#9333EA]/20 border border-[#A855F7]/40 text-[#C084FC] px-2 py-0.5 rounded font-normal">
                 v1.0 SOUVERAIN
               </span>
             </h1>
@@ -326,7 +329,7 @@ export default function App() {
               onClick={() => setViewMode('master_broadcast')}
               className={`px-3 py-1.5 rounded transition cursor-pointer font-bold ${
                 viewMode === 'master_broadcast'
-                  ? 'bg-[#00FF9D] text-black shadow-sm'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-black shadow-[0_0_12px_rgba(212,175,55,0.4)]'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -337,7 +340,7 @@ export default function App() {
               onClick={() => setViewMode('harmonic_console')}
               className={`px-3 py-1.5 rounded transition cursor-pointer font-bold ${
                 viewMode === 'harmonic_console'
-                  ? 'bg-[#00FF9D] text-black shadow-sm'
+                  ? 'bg-gradient-to-r from-[#D4AF37] to-[#F59E0B] text-black shadow-[0_0_12px_rgba(212,175,55,0.4)]'
                   : 'text-gray-400 hover:text-white'
               }`}
             >
@@ -347,15 +350,15 @@ export default function App() {
 
           <button
             onClick={() => setShowWidgetModal(true)}
-            className="hidden md:flex items-center gap-2 bg-black/40 hover:bg-white/5 border border-white/10 text-xs px-3.5 py-2 rounded transition cursor-pointer"
+            className="hidden md:flex items-center gap-2 bg-black/40 hover:bg-white/5 border border-white/10 text-xs px-3.5 py-2 rounded transition cursor-pointer hover:border-[#D4AF37]/30"
           >
-            <Share2 className="w-3.5 h-3.5 text-[#00FF9D]" />
+            <Share2 className="w-3.5 h-3.5 text-[#D4AF37]" />
             <span>WIDGET EMBED</span>
           </button>
 
           <button
             onClick={() => setShowCreatorModal(true)}
-            className="flex items-center gap-2 bg-[#F59E0B]/10 hover:bg-[#F59E0B]/20 border border-[#F59E0B]/40 text-[#F59E0B] text-xs px-4 py-2 rounded font-bold transition cursor-pointer"
+            className="flex items-center gap-2 bg-[#F59E0B]/10 hover:bg-[#F59E0B]/20 border border-[#F59E0B]/40 text-[#F59E0B] text-xs px-4 py-2 rounded font-bold transition cursor-pointer shadow-[0_0_10px_rgba(245,158,11,0.15)]"
           >
             <ShieldCheck className="w-4 h-4" />
             <span>STUDIO CRÉATEUR (85/15)</span>
@@ -364,9 +367,9 @@ export default function App() {
           <button
             id="btn-open-mcp-ai-suite"
             onClick={() => setShowAiSuiteModal(true)}
-            className="flex items-center gap-2 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 hover:from-emerald-500/30 hover:to-teal-500/30 border border-emerald-500/50 text-emerald-300 text-xs px-4 py-2 rounded font-bold transition cursor-pointer shadow-[0_0_15px_rgba(0,255,157,0.15)]"
+            className="flex items-center gap-2 bg-gradient-to-r from-purple-900/40 via-amber-900/30 to-purple-900/40 hover:from-purple-800/50 hover:to-amber-800/40 border border-[#D4AF37]/50 text-[#FDE047] text-xs px-4 py-2 rounded font-bold transition cursor-pointer shadow-[0_0_15px_rgba(212,175,55,0.2)]"
           >
-            <Sparkles className="w-4 h-4 text-emerald-400" />
+            <Sparkles className="w-4 h-4 text-[#D4AF37]" />
             <span>STUDIO IA PRO (MCP)</span>
           </button>
         </div>
@@ -374,11 +377,11 @@ export default function App() {
 
       {/* Bannière d'achat réussi */}
       {purchaseSuccessBanner && (
-        <div className="bg-[#00FF9D]/20 border-b border-[#00FF9D] text-[#00FF9D] px-6 py-2 text-xs flex justify-between items-center">
+        <div className="bg-[#9333EA]/20 border-b border-[#D4AF37] text-[#FDE047] px-6 py-2 text-xs flex justify-between items-center">
           <span>{purchaseSuccessBanner}</span>
           <button
             onClick={() => setPurchaseSuccessBanner(null)}
-            className="font-bold underline cursor-pointer"
+            className="font-bold underline cursor-pointer text-white hover:text-[#D4AF37]"
           >
             Fermer
           </button>
@@ -400,7 +403,7 @@ export default function App() {
           {/* COLONNE GAUCHE : Moteur de Routage & 4 Fréquences */}
           <section
             aria-labelledby="routing-heading"
-            className="col-span-12 lg:col-span-4 bg-[#0F171B] border border-white/10 rounded-xl p-5 flex flex-col gap-6"
+            className="col-span-12 lg:col-span-4 bg-[#000000] border border-[#D4AF37]/25 rounded-xl p-5 flex flex-col gap-6 shadow-[0_0_20px_rgba(0,0,0,0.8)]"
           >
             <div>
               <div className="flex items-center justify-between mb-4">
@@ -408,7 +411,7 @@ export default function App() {
                   id="routing-heading"
                   className="text-xs font-bold text-gray-300 uppercase tracking-wider flex items-center gap-2"
                 >
-                  <Sliders className="w-4 h-4 text-[#00FF9D]" /> Matrice Fréquentielle A/B
+                  <Sliders className="w-4 h-4 text-[#D4AF37]" /> Matrice Fréquentielle A/B
                 </h2>
                 <span className="text-[10px] text-gray-500">COMMUTATION INSTANTANÉE</span>
               </div>
@@ -427,28 +430,28 @@ export default function App() {
                     title: '432 Hz Verdi Naturel',
                     badge: 'Harmonique',
                     desc: 'Transposition r = 54/55 (-31.7667 cents) préservation des transitoires',
-                    color: 'text-[#00FF9D] border-[#00FF9D]/30',
+                    color: 'text-[#C084FC] border-[#A855F7]/40',
                   },
                   {
                     id: '432_PHI',
                     title: 'Φ 432 Hz Nombre d\'Or',
                     badge: 'Binaural 1.618 Hz',
                     desc: 'Modulation quadrature I/Q à 1.618033 Hz (m = 0.04)',
-                    color: 'text-[#F59E0B] border-[#F59E0B]/30',
+                    color: 'text-[#FBBF24] border-[#D4AF37]/40',
                   },
                   {
                     id: '432_528_BINAURAL',
                     title: 'Φ 432 Hz + 528 Hz Solfeggio',
                     badge: 'Double Matrice',
                     desc: 'Porteuse sacrée 528 Hz calibrée à -24 dBFS + divergence Delta-Phi',
-                    color: 'text-[#F59E0B] border-[#F59E0B]/30',
+                    color: 'text-[#F59E0B] border-[#F59E0B]/40',
                   },
                   {
                     id: '432_ORCHESTRAL',
                     title: '432 Ambiophonique Orchestral',
                     badge: 'Holophonique 3D',
                     desc: 'Immersion symphonique 3D, spatialisation holophonique et acoustique de salle',
-                    color: 'text-[#00E5FF] border-[#00E5FF]/30',
+                    color: 'text-[#E879F9] border-[#C026D3]/40',
                   },
                 ].map((mode) => {
                   const isActive = freqMode === mode.id;
@@ -458,8 +461,8 @@ export default function App() {
                       onClick={() => handleFrequencySwitch(mode.id as DSPFrequencyMode)}
                       className={`p-3.5 rounded-lg border text-left transition-all relative overflow-hidden cursor-pointer ${
                         isActive
-                          ? 'bg-[#00FF9D]/10 border-[#00FF9D] text-white shadow-[0_0_20px_rgba(0,255,157,0.15)]'
-                          : 'bg-black/30 border-white/5 hover:border-white/20 text-gray-400'
+                          ? 'bg-gradient-to-r from-[#581C87]/40 to-[#78350F]/40 border-[#D4AF37] text-white shadow-[0_0_20px_rgba(212,175,55,0.25)]'
+                          : 'bg-black border-white/5 hover:border-[#D4AF37]/30 text-gray-400'
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
@@ -470,8 +473,8 @@ export default function App() {
                       </div>
                       <p className="text-[11px] text-gray-500 leading-relaxed">{mode.desc}</p>
                       {isActive && (
-                        <div className="mt-2 text-[10px] text-[#00FF9D] font-bold flex items-center gap-1.5">
-                          <Sparkles className="w-3 h-3 animate-spin" /> MATRICE ACTIVE
+                        <div className="mt-2 text-[10px] text-[#D4AF37] font-bold flex items-center gap-1.5">
+                          <Sparkles className="w-3 h-3 animate-spin text-[#FBBF24]" /> MATRICE ACTIVE
                         </div>
                       )}
                     </button>
@@ -481,19 +484,19 @@ export default function App() {
             </div>
 
             {/* Badges Dynamiques L/R Porteuses */}
-            <div className="bg-black/40 border border-white/10 rounded-lg p-4 text-xs">
+            <div className="bg-black border border-white/10 rounded-lg p-4 text-xs">
               <div className="text-gray-400 font-bold mb-3 flex items-center justify-between">
                 <span>PORTEUSES D'ÉMISSION</span>
-                <Radio className="w-3.5 h-3.5 text-[#00FF9D]" />
+                <Radio className="w-3.5 h-3.5 text-[#D4AF37]" />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/5 p-2 rounded">
-                  <div className="text-[10px] text-gray-500 uppercase">Canal Gauche (L)</div>
-                  <div className="text-sm font-bold text-[#00FF9D]">{currentCarriers.leftHz} Hz</div>
+                <div className="bg-white/5 p-2 rounded border border-purple-500/20">
+                  <div className="text-[10px] text-gray-400 uppercase">Canal Gauche (L)</div>
+                  <div className="text-sm font-bold text-[#C084FC]">{currentCarriers.leftHz} Hz</div>
                 </div>
-                <div className="bg-white/5 p-2 rounded">
-                  <div className="text-[10px] text-gray-500 uppercase">Canal Droit (R)</div>
-                  <div className="text-sm font-bold text-[#F59E0B]">{currentCarriers.rightHz} Hz</div>
+                <div className="bg-white/5 p-2 rounded border border-amber-500/20">
+                  <div className="text-[10px] text-gray-400 uppercase">Canal Droit (R)</div>
+                  <div className="text-sm font-bold text-[#FBBF24]">{currentCarriers.rightHz} Hz</div>
                 </div>
               </div>
             </div>
@@ -502,9 +505,9 @@ export default function App() {
             <div className="mt-auto pt-4 border-t border-white/10">
               <div className="flex justify-between text-xs mb-2">
                 <span className="text-gray-400 flex items-center gap-1.5">
-                  <Volume2 className="w-4 h-4 text-[#00FF9D]" /> GAIN BROADCAST
+                  <Volume2 className="w-4 h-4 text-[#D4AF37]" /> GAIN BROADCAST
                 </span>
-                <span className="text-[#00FF9D] font-bold">{Math.round(masterVolume * 100)}%</span>
+                <span className="text-[#D4AF37] font-bold">{Math.round(masterVolume * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -517,7 +520,7 @@ export default function App() {
                   setMasterVolume(val);
                   if (gainNodeRef.current) gainNodeRef.current.gain.value = val;
                 }}
-                className="w-full accent-[#00FF9D] bg-black/40 rounded h-1.5 cursor-pointer"
+                className="w-full accent-[#D4AF37] bg-black rounded h-1.5 cursor-pointer"
               />
             </div>
           </section>
@@ -528,13 +531,13 @@ export default function App() {
             className="col-span-12 lg:col-span-8 flex flex-col gap-5"
           >
             {/* Panneau Principal du Player */}
-            <div className="bg-[#0F171B] border border-white/10 rounded-xl p-6 flex flex-col justify-between">
+            <div className="bg-[#000000] border border-[#D4AF37]/25 rounded-xl p-6 flex flex-col justify-between shadow-[0_0_25px_rgba(0,0,0,0.9)]">
               <div>
                 {/* Entête du Titre Actif */}
                 <div className="flex flex-wrap justify-between items-start gap-4 mb-5">
                   <div>
-                    <div className="text-xs text-[#00FF9D] font-bold tracking-wider uppercase mb-1">
-                      PISTE SÉLECTIONNÉE • ISRC : {selectedTrack.isrc}
+                    <div className="text-xs text-[#D4AF37] font-bold tracking-wider uppercase mb-1 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" /> PISTE SÉLECTIONNÉE • ISRC : {selectedTrack.isrc}
                     </div>
                     <div className="flex flex-wrap items-center gap-2.5">
                       <h2 id="player-heading" className="text-2xl font-black text-white">
@@ -561,9 +564,9 @@ export default function App() {
                         onClick={restartPlayback}
                         title="Redémarrer le morceau au début (0:00)"
                         aria-label="Redémarrer le morceau"
-                        className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md bg-white/5 text-gray-300 hover:text-[#00FF9D] hover:bg-[#00FF9D]/10 border border-white/10 hover:border-[#00FF9D]/30 transition-all cursor-pointer group select-none"
+                        className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-md bg-white/5 text-gray-300 hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-white/10 hover:border-[#D4AF37]/30 transition-all cursor-pointer group select-none"
                       >
-                        <RotateCcw className="w-3.5 h-3.5 group-hover:-rotate-45 transition-transform text-[#00FF9D]" />
+                        <RotateCcw className="w-3.5 h-3.5 group-hover:-rotate-45 transition-transform text-[#D4AF37]" />
                         <span>Restart</span>
                       </button>
                     </div>
@@ -580,25 +583,25 @@ export default function App() {
 
                   {/* Métriques Broadcast EBU R128 */}
                   <div className="flex gap-3">
-                    <div className="bg-black/50 border border-white/10 px-3.5 py-2 rounded-lg text-right">
+                    <div className="bg-black border border-purple-500/30 px-3.5 py-2 rounded-lg text-right shadow-[0_0_10px_rgba(168,85,247,0.15)]">
                       <div className="text-[10px] text-gray-400 uppercase">Cible LUFS</div>
-                      <div className="text-sm font-black text-[#00FF9D]">-14.0 LUFS</div>
+                      <div className="text-sm font-black text-[#C084FC]">-14.0 LUFS</div>
                     </div>
-                    <div className="bg-black/50 border border-white/10 px-3.5 py-2 rounded-lg text-right">
+                    <div className="bg-black border border-amber-500/30 px-3.5 py-2 rounded-lg text-right shadow-[0_0_10px_rgba(245,158,11,0.15)]">
                       <div className="text-[10px] text-gray-400 uppercase">True Peak</div>
-                      <div className="text-sm font-black text-[#F59E0B]">-1.0 dBTP</div>
+                      <div className="text-sm font-black text-[#FBBF24]">-1.0 dBTP</div>
                     </div>
                   </div>
                 </div>
 
                 {/* Oscilloscope FFT Canvas 60 FPS */}
-                <div className="w-full h-64 bg-[#0B1313] border border-white/10 rounded-lg overflow-hidden relative mb-5">
+                <div className="w-full h-64 bg-[#000000] border border-[#D4AF37]/20 rounded-lg overflow-hidden relative mb-5">
                   <canvas ref={canvasRef} width={900} height={256} className="w-full h-full" />
                   <div className="absolute top-3 left-3 text-[10px] text-white/50 tracking-widest pointer-events-none flex items-center gap-2">
-                    <Activity className="w-3.5 h-3.5 text-[#00FF9D]" />
+                    <Activity className="w-3.5 h-3.5 text-[#D4AF37]" />
                     SPECTRE FFT 2048 PTS • ÉCHANTILLONNAGE 48 KHZ
                   </div>
-                  <div className="absolute bottom-3 right-3 text-[10px] text-white/40 font-mono pointer-events-none">
+                  <div className="absolute bottom-3 right-3 text-[10px] text-[#D4AF37]/60 font-mono pointer-events-none">
                     CERTIFICAT SHA-256 : {selectedTrack.sha256Certificate.slice(0, 16)}...
                   </div>
                 </div>
@@ -618,7 +621,7 @@ export default function App() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={togglePlayback}
-                    className="bg-[#00FF9D] hover:bg-[#00FF9D]/90 text-black font-black px-7 py-3.5 rounded-lg flex items-center gap-2.5 shadow-[0_0_20px_rgba(0,255,157,0.3)] transition-all cursor-pointer select-none"
+                    className="bg-gradient-to-r from-[#D4AF37] via-[#F59E0B] to-[#D4AF37] hover:opacity-95 active:scale-95 text-black font-black px-7 py-3.5 rounded-lg flex items-center gap-2.5 shadow-[0_0_25px_rgba(212,175,55,0.4)] transition-all cursor-pointer select-none"
                   >
                     {isPlaying ? (
                       <Pause className="w-5 h-5 fill-current" />
@@ -634,9 +637,9 @@ export default function App() {
                     onClick={restartPlayback}
                     title="Redémarrer le flux au début (0:00)"
                     aria-label="Redémarrer le morceau"
-                    className="bg-white/10 hover:bg-white/20 text-white font-bold px-4 py-3.5 rounded-lg flex items-center gap-2 transition-all cursor-pointer border border-white/10 hover:border-[#00FF9D]/40 group select-none"
+                    className="bg-white/10 hover:bg-white/20 text-white font-bold px-4 py-3.5 rounded-lg flex items-center gap-2 transition-all cursor-pointer border border-white/10 hover:border-[#D4AF37]/40 group select-none"
                   >
-                    <RotateCcw className="w-4 h-4 text-[#00FF9D] group-hover:-rotate-45 transition-transform" />
+                    <RotateCcw className="w-4 h-4 text-[#D4AF37] group-hover:-rotate-45 transition-transform" />
                     <span className="text-xs uppercase tracking-wider hidden sm:inline">RESTART</span>
                   </button>
 
@@ -671,13 +674,13 @@ export default function App() {
             {/* 4. Catalogue des 20 Pistes Certifiées */}
             <section
               aria-labelledby="catalogue-heading"
-              className="bg-[#0F171B] border border-white/10 rounded-xl p-5"
+              className="bg-[#000000] border border-[#D4AF37]/25 rounded-xl p-5 shadow-[0_0_20px_rgba(0,0,0,0.8)]"
             >
               <h3
                 id="catalogue-heading"
-                className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2"
+                className="text-xs font-bold text-gray-300 uppercase tracking-wider mb-4 flex items-center gap-2"
               >
-                <Layers className="w-4 h-4 text-[#00FF9D]" /> Registre des Pistes Master Linkin Park & Studio (20 Pistes Certifiées)
+                <Layers className="w-4 h-4 text-[#D4AF37]" /> Registre des Pistes Master Linkin Park & Studio (20 Pistes Certifiées)
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -689,8 +692,8 @@ export default function App() {
                       onClick={() => handleSelectTrack(track)}
                       className={`p-4 rounded-lg border cursor-pointer transition-all ${
                         isCurrent
-                          ? 'bg-[#00FF9D]/10 border-[#00FF9D] text-white'
-                          : 'bg-black/30 border-white/5 hover:border-white/20 text-gray-400'
+                          ? 'bg-gradient-to-r from-[#581C87]/30 to-[#78350F]/30 border-[#D4AF37] text-white shadow-[0_0_15px_rgba(212,175,55,0.2)]'
+                          : 'bg-black border-white/5 hover:border-[#D4AF37]/30 text-gray-400'
                       }`}
                     >
                       <div className="flex justify-between items-start mb-2">
@@ -727,13 +730,13 @@ export default function App() {
                               }}
                               title={`Redémarrer "${track.title}" au début (0:00)`}
                               aria-label={`Redémarrer ${track.title}`}
-                              className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-white/5 text-gray-300 hover:text-[#00FF9D] hover:bg-[#00FF9D]/10 border border-white/10 hover:border-[#00FF9D]/30 transition-all cursor-pointer group select-none"
+                              className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded bg-white/5 text-gray-300 hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-white/10 hover:border-[#D4AF37]/30 transition-all cursor-pointer group select-none"
                             >
-                              <RotateCcw className="w-3 h-3 group-hover:-rotate-45 transition-transform text-[#00FF9D]" />
+                              <RotateCcw className="w-3 h-3 group-hover:-rotate-45 transition-transform text-[#D4AF37]" />
                               <span>Restart</span>
                             </button>
                           </div>
-                          <div className="text-xs text-[#00FF9D] mt-0.5">{track.artist}</div>
+                          <div className="text-xs text-[#FBBF24] mt-0.5">{track.artist}</div>
                         </div>
                         <span className="text-[10px] bg-white/5 border border-white/10 px-2 py-0.5 rounded text-gray-300 shrink-0">
                           {track.musicalKey}
@@ -764,7 +767,7 @@ export default function App() {
       {/* ==================================================================== */}
       {showStripeModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0F171B] border border-white/20 rounded-xl max-w-md w-full p-6 text-sm">
+          <div className="bg-[#000000] border border-white/20 rounded-xl max-w-md w-full p-6 text-sm">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-[#F59E0B]" />
@@ -790,7 +793,7 @@ export default function App() {
                 <span className="text-gray-400">Prix unitaire officiel :</span>
                 <span className="text-white font-bold">0.99 $ CAD (99 ¢)</span>
               </div>
-              <div className="flex justify-between text-[#00FF9D]">
+              <div className="flex justify-between text-[#D4AF37]">
                 <span>Part Créateur Direct (85%) :</span>
                 <span className="font-bold">0.84 $ CAD (84 ¢)</span>
               </div>
@@ -840,7 +843,7 @@ export default function App() {
                   setShowStripeModal(false);
                 }
               }}
-              className="w-full bg-[#00FF9D] hover:bg-[#00FF9D]/90 text-black font-black py-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full bg-gradient-to-r from-[#D4AF37] via-[#F59E0B] to-[#D4AF37] hover:opacity-95 text-black font-black py-3 rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_20px_rgba(212,175,55,0.4)]"
             >
               <span>CONFIRMER SUR STRIPE CHECKOUT</span>
               <ExternalLink className="w-4 h-4" />
@@ -854,7 +857,7 @@ export default function App() {
       {/* ==================================================================== */}
       {showCreatorModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0F171B] border border-white/20 rounded-xl max-w-2xl w-full p-6 text-sm max-h-[85vh] overflow-y-auto">
+          <div className="bg-[#000000] border border-[#D4AF37]/30 rounded-xl max-w-2xl w-full p-6 text-sm max-h-[85vh] overflow-y-auto shadow-[0_0_30px_rgba(0,0,0,0.9)]">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-2">
                 <ShieldCheck className="w-5 h-5 text-[#F59E0B]" />
@@ -871,15 +874,15 @@ export default function App() {
             </div>
 
             <div className="grid grid-cols-3 gap-3 mb-5 text-xs">
-              <div className="bg-black/40 border border-white/10 p-3 rounded-lg">
+              <div className="bg-black border border-purple-500/20 p-3 rounded-lg">
                 <div className="text-gray-400">PART CRÉATEUR FIXE</div>
-                <div className="text-lg font-black text-[#00FF9D]">85.0 %</div>
+                <div className="text-lg font-black text-[#D4AF37]">85.0 %</div>
               </div>
-              <div className="bg-black/40 border border-white/10 p-3 rounded-lg">
+              <div className="bg-black border border-amber-500/20 p-3 rounded-lg">
                 <div className="text-gray-400">PART PLATEFORME</div>
                 <div className="text-lg font-black text-[#F59E0B]">15.0 %</div>
               </div>
-              <div className="bg-black/40 border border-white/10 p-3 rounded-lg">
+              <div className="bg-black border border-white/10 p-3 rounded-lg">
                 <div className="text-gray-400">RÈGLEMENT STRIPE</div>
                 <div className="text-lg font-black text-white">J+7 SÉQUESTRE</div>
               </div>
@@ -892,7 +895,7 @@ export default function App() {
               {CATALOGUE.map((t) => (
                 <div
                   key={t.id}
-                  className="bg-black/30 border border-white/10 p-3 rounded text-xs flex justify-between items-center"
+                  className="bg-black/50 border border-white/10 p-3 rounded text-xs flex justify-between items-center"
                 >
                   <div>
                     <span className="font-bold text-white">{t.title}</span> —{' '}
@@ -901,7 +904,7 @@ export default function App() {
                       ISRC: {t.isrc} | Cert: {t.sha256Certificate.slice(0, 20)}...
                     </div>
                   </div>
-                  <span className="text-[#00FF9D] font-bold">84 ¢ / vente</span>
+                  <span className="text-[#D4AF37] font-bold">84 ¢ / vente</span>
                 </div>
               ))}
             </div>
@@ -919,10 +922,10 @@ export default function App() {
       {/* ==================================================================== */}
       {showWidgetModal && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0F171B] border border-white/20 rounded-xl max-w-xl w-full p-6 text-sm max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#000000] border border-[#D4AF37]/30 rounded-xl max-w-xl w-full p-6 text-sm max-h-[90vh] overflow-y-auto shadow-[0_0_30px_rgba(0,0,0,0.9)]">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-2">
-                <Code2 className="w-5 h-5 text-[#00FF9D]" />
+                <Code2 className="w-5 h-5 text-[#D4AF37]" />
                 <h3 className="text-base font-bold text-white">Intégration du Lecteur Embed & Partage Réseaux</h3>
               </div>
               <button
@@ -934,12 +937,12 @@ export default function App() {
             </div>
 
             {/* 1. Boutons de partage direct Twitter/X et Facebook */}
-            <div className="bg-black/50 border border-white/10 rounded-xl p-4 mb-4">
+            <div className="bg-black border border-white/10 rounded-xl p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-bold text-gray-300 uppercase tracking-wider">
                   Partage Social Direct
                 </span>
-                <span className="text-[10px] text-[#00FF9D] font-bold bg-[#00FF9D]/10 px-2 py-0.5 rounded border border-[#00FF9D]/30">
+                <span className="text-[10px] text-[#D4AF37] font-bold bg-[#D4AF37]/10 px-2 py-0.5 rounded border border-[#D4AF37]/30">
                   {freqMode}
                 </span>
               </div>
@@ -970,7 +973,7 @@ export default function App() {
               Code HTML d'intégration sécurisé (IFrame HTTP 206) :
             </p>
 
-            <div className="bg-black/80 border border-white/10 p-3 rounded text-[11px] font-mono text-[#00FF9D] overflow-x-auto mb-4">
+            <div className="bg-black border border-[#D4AF37]/30 p-3 rounded text-[11px] font-mono text-[#FBBF24] overflow-x-auto mb-4">
               {`<iframe src="https://harmonic-studio-plateforme-de-streaming-432hz.ai.studio/embed/${selectedTrack.id}?freq=${freqMode}" width="100%" height="220" frameborder="0" allow="autoplay"></iframe>`}
             </div>
 
@@ -981,7 +984,7 @@ export default function App() {
                 );
                 alert('Code Embed copié dans votre presse-papier !');
               }}
-              className="w-full bg-[#00FF9D] hover:bg-[#00FF9D]/90 text-black font-bold py-2.5 rounded text-xs cursor-pointer"
+              className="w-full bg-gradient-to-r from-[#9333EA] to-[#D4AF37] hover:opacity-95 text-white font-bold py-2.5 rounded text-xs cursor-pointer shadow-[0_0_15px_rgba(147,51,234,0.3)]"
             >
               COPIER LE CODE IFRAME
             </button>
