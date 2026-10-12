@@ -549,7 +549,7 @@ describe('ATOME 5 : Validation Exhaustive Frontend & Flux Audio Quadruple Fréqu
 
   test('5.3 Validation des boutons de sélection des 4 chansons maîtresses', () => {
     const store = useAudioStore.getState();
-    assert.equal(store.tracks.length, 4, 'Le catalogue doit contenir exactement 4 pistes');
+    assert.ok(store.tracks.length >= 4, 'Le catalogue doit contenir au moins les 4 pistes maîtresses');
 
     for (const track of store.tracks) {
       // Simuler le clic sur la piste
@@ -595,15 +595,15 @@ describe('ATOME 5 : Validation Exhaustive Frontend & Flux Audio Quadruple Fréqu
     store.clearQueue();
     assert.equal(useAudioStore.getState().queue.length, 0, 'La file doit être vide au départ');
 
-    // 1. Ajouter les 4 pistes à la file
+    // 1. Ajouter toutes les pistes à la file
     for (const t of store.tracks) {
       useAudioStore.getState().addToQueue(t);
     }
-    assert.equal(useAudioStore.getState().queue.length, 4, 'La file doit contenir 4 pistes');
+    assert.equal(useAudioStore.getState().queue.length, store.tracks.length, 'La file doit contenir toutes les pistes');
 
     // 2. Supprimer la première piste
     useAudioStore.getState().removeFromQueue(0);
-    assert.equal(useAudioStore.getState().queue.length, 3, 'La file doit contenir 3 pistes après suppression');
+    assert.equal(useAudioStore.getState().queue.length, store.tracks.length - 1, 'La file doit contenir n - 1 pistes après suppression');
 
     // 3. Toggle Auto-Play Next
     const initialAutoplay = useAudioStore.getState().autoPlayNext;

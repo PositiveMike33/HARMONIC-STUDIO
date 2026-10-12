@@ -103,11 +103,11 @@ describe('FRONTEND EXHAUSTIVE UI CLICKS & AUDIOTRACK RESOLUTION TEST', () => {
     for (const track of store.tracks) {
       store.addToQueue(track);
     }
-    assert.equal(useAudioStore.getState().queue.length, 4);
+    assert.equal(useAudioStore.getState().queue.length, store.tracks.length);
 
     // Supprimer un élément
     store.removeFromQueue(1);
-    assert.equal(useAudioStore.getState().queue.length, 3);
+    assert.equal(useAudioStore.getState().queue.length, store.tracks.length - 1);
 
     // Toggle autoplay
     const auto = useAudioStore.getState().autoPlayNext;
